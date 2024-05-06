@@ -23,7 +23,7 @@ func main() {
 
 	commandArgs := flag.Args()
 	if len(commandArgs) < 1 {
-		fmt.Println("Usage: dock [-p port_mapping] command [arguments...]")
+		fmt.Println("Usage: ibox [-p port_mapping] command [arguments...]")
 		os.Exit(1)
 	}
 
@@ -87,6 +87,7 @@ func main() {
 		Stdin:  true,
 		Stdout: true,
 		Stderr: true,
+		Logs:   true,
 	})
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error connecting to the container:", err)
