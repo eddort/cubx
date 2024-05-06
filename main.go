@@ -12,6 +12,7 @@ import (
 	"syscall"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
@@ -213,27 +214,22 @@ func cleanUpContainer(cli *client.Client, ctx context.Context, containerID strin
 }
 
 func imageExists(ctx context.Context, cli *client.Client, imageName string) (bool, error) {
-	images, err := cli.ImageList(ctx, image.ListOptions{})
+	filterArgs := filters.NewArgs()
+	filterArgs.Add("reference", imageName)
+
+	images, err := cli.ImageList(ctx, image.ListOptions{Filters: filterArgs})
 	if err != nil {
 		return false, err
 	}
 
-	imageFullName := imageName
-	for _, image := range images {
-		for _, tag := range image.RepoTags {
-			if tag == imageFullName {
-				return true, nil
-			}
-		}
-	}
-
-	return false, nil
+	return len(images) > 0, nil
 }
 
 func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
 
 	found, err := imageExists(ctx, cli, docImage)
 	if err != nil {
+		// TODO: combine error and return
 		fmt.Fprintln(os.Stderr, "Error checking image existence:", err)
 		os.Exit(1)
 	}
@@ -245,6 +241,7 @@ func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
 	pullRes, err := cli.ImagePull(ctx, docImage, image.PullOptions{Platform: "linux/amd64"})
 
 	if err != nil {
+		// TODO: combine error and return
 		fmt.Fprintln(os.Stderr, "Error pulling a Docker container:", err)
 		os.Exit(1)
 	}
@@ -256,6 +253,7 @@ func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
 	for decoder.More() {
 		err := decoder.Decode(&message)
 		if err != nil {
+			// TODO: combine error and return
 			fmt.Fprintln(os.Stderr, "Error decoding JSON stream:", err)
 			os.Exit(1)
 		}
