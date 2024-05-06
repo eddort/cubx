@@ -1,4 +1,4 @@
-module dbox
+module ibox
 
 go 1.21
 

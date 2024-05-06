@@ -128,8 +128,11 @@ func getDockerImageAndCommand(commandArgs []string) (string, []string) {
 	switch baseCommand {
 	case "npm", "node":
 		return "node:latest", append([]string{baseCommand}, additionalArgs...)
-	case "forge", "anvil":
+	case "forge":
 		return "ghcr.io/foundry-rs/foundry:latest", []string{strings.Join(commandArgs, " ")}
+	case "anvil":
+		fullArgs := append(commandArgs, []string{"--host", "0.0.0.0"}...)
+		return "ghcr.io/foundry-rs/foundry:latest", []string{strings.Join(fullArgs, " ")}
 	case "python", "pip":
 		return "python:latest", append([]string{baseCommand}, additionalArgs...)
 	case "ruby", "gem":
