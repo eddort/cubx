@@ -148,7 +148,7 @@ func getDockerImageAndCommand(commandArgs []string) (string, []string) {
 	}()
 
 	switch commandName {
-	case "npm", "node":
+	case "npm", "node", "yarn":
 		return "node:" + dockerTag, append([]string{commandName}, additionalArgs...)
 	case "forge":
 		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(commandArgs, " ")}
