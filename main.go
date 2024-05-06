@@ -50,34 +50,11 @@ func main() {
 
 	ctx := context.Background()
 
-	pullRes, err := cli.ImagePull(ctx, docImage, image.PullOptions{Platform: "linux/amd64"})
+	err = pullImage(ctx, cli, docImage)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error pulling a Docker container:", err)
 		os.Exit(1)
-	}
-	defer pullRes.Close() // Ensure the response body is closed
-
-	// body, err := io.ReadAll(pullRes)
-	// if err != nil {
-	// 	fmt.Fprintln(os.Stderr, "Error reading response body:", err)
-	// 	os.Exit(1)
-	// }
-	// jsonmessage.DisplayJSONMessagesToStream(pullRes, os.Stdout, nil)
-	// fmt.Println(string(body))
-
-	decoder := json.NewDecoder(pullRes)
-	var message map[string]interface{}
-
-	for decoder.More() {
-		err := decoder.Decode(&message)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error decoding JSON stream:", err)
-			break
-		}
-		if status, ok := message["status"]; ok {
-			fmt.Println(status)
-		}
 	}
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
@@ -233,4 +210,63 @@ func cleanUpContainer(cli *client.Client, ctx context.Context, containerID strin
 	// if err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{Force: true}); err != nil {
 	// 	fmt.Fprintf(os.Stderr, "Failed to delete the container: %v\n", err)
 	// }
+}
+
+func imageExists(ctx context.Context, cli *client.Client, imageName string) (bool, error) {
+	images, err := cli.ImageList(ctx, image.ListOptions{})
+	if err != nil {
+		return false, err
+	}
+
+	imageFullName := imageName
+	for _, image := range images {
+		for _, tag := range image.RepoTags {
+			if tag == imageFullName {
+				return true, nil
+			}
+		}
+	}
+
+	return false, nil
+}
+
+func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
+
+	found, err := imageExists(ctx, cli, docImage)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error checking image existence:", err)
+		os.Exit(1)
+	}
+
+	if found {
+		return nil
+	}
+
+	pullRes, err := cli.ImagePull(ctx, docImage, image.PullOptions{Platform: "linux/amd64"})
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error pulling a Docker container:", err)
+		os.Exit(1)
+	}
+	defer pullRes.Close() // Ensure the response body is closed
+
+	decoder := json.NewDecoder(pullRes)
+	var message map[string]interface{}
+	var prevMsg interface{}
+	for decoder.More() {
+		err := decoder.Decode(&message)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error decoding JSON stream:", err)
+			os.Exit(1)
+		}
+		if status, ok := message["status"]; ok {
+			if status == prevMsg {
+				continue
+			}
+			prevMsg = status
+			fmt.Println(status)
+		}
+	}
+
+	return nil
 }
