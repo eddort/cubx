@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
@@ -27,7 +28,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	image, command := getDockerImageAndCommand(commandArgs)
+	docImage, command := getDockerImageAndCommand(commandArgs)
+
 	portMappings, err := getPortMappings(ports)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Incorrect port format:", err)
@@ -46,8 +48,16 @@ func main() {
 	}
 
 	ctx := context.Background()
+
+	_, err = cli.ImagePull(ctx, docImage, image.PullOptions{Platform: "linux/amd64"})
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error pulling a Docker container:", err)
+		os.Exit(1)
+	}
+
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image:        image,
+		Image:        docImage,
 		Cmd:          command,
 		Tty:          true,
 		AttachStdin:  true,
@@ -58,7 +68,7 @@ func main() {
 		StdinOnce:    false,
 		ExposedPorts: exposedPorts,
 	}, &container.HostConfig{
-		// AutoRemove: true,
+		AutoRemove: true,
 
 		PortBindings: portMappings,
 		Mounts: []mount.Mount{
@@ -125,21 +135,30 @@ func main() {
 func getDockerImageAndCommand(commandArgs []string) (string, []string) {
 	baseCommand := commandArgs[0]
 	additionalArgs := commandArgs[1:]
+	strings.Split(baseCommand, ":")
 
-	switch baseCommand {
+	commandName, dockerTag := func() (string, string) {
+		x := strings.Split(baseCommand, ":")
+		if len(x) > 1 {
+			return x[0], x[1]
+		}
+		return x[0], "latest"
+	}()
+
+	switch commandName {
 	case "npm", "node":
-		return "node:latest", append([]string{baseCommand}, additionalArgs...)
+		return "node:" + dockerTag, append([]string{commandName}, additionalArgs...)
 	case "forge":
-		return "ghcr.io/foundry-rs/foundry:latest", []string{strings.Join(commandArgs, " ")}
+		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(commandArgs, " ")}
 	case "anvil":
 		fullArgs := append(commandArgs, []string{"--host", "0.0.0.0"}...)
-		return "ghcr.io/foundry-rs/foundry:latest", []string{strings.Join(fullArgs, " ")}
+		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(fullArgs, " ")}
 	case "python", "pip":
-		return "python:latest", append([]string{baseCommand}, additionalArgs...)
+		return "python:" + dockerTag, append([]string{commandName}, additionalArgs...)
 	case "ruby", "gem":
-		return "ruby:latest", append([]string{baseCommand}, additionalArgs...)
+		return "ruby:" + dockerTag, append([]string{commandName}, additionalArgs...)
 	default:
-		return "ubuntu:latest", commandArgs
+		return "ubuntu:" + dockerTag, commandArgs
 	}
 }
 
