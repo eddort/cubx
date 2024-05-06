@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -49,11 +50,34 @@ func main() {
 
 	ctx := context.Background()
 
-	_, err = cli.ImagePull(ctx, docImage, image.PullOptions{Platform: "linux/amd64"})
+	pullRes, err := cli.ImagePull(ctx, docImage, image.PullOptions{Platform: "linux/amd64"})
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error pulling a Docker container:", err)
 		os.Exit(1)
+	}
+	defer pullRes.Close() // Ensure the response body is closed
+
+	// body, err := io.ReadAll(pullRes)
+	// if err != nil {
+	// 	fmt.Fprintln(os.Stderr, "Error reading response body:", err)
+	// 	os.Exit(1)
+	// }
+	// jsonmessage.DisplayJSONMessagesToStream(pullRes, os.Stdout, nil)
+	// fmt.Println(string(body))
+
+	decoder := json.NewDecoder(pullRes)
+	var message map[string]interface{}
+
+	for decoder.More() {
+		err := decoder.Decode(&message)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error decoding JSON stream:", err)
+			break
+		}
+		if status, ok := message["status"]; ok {
+			fmt.Println(status)
+		}
 	}
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
