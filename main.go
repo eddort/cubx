@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -69,9 +70,10 @@ func main() {
 		OpenStdin:    true, // Ensure the stdin is open
 		StdinOnce:    false,
 		ExposedPorts: exposedPorts,
+		// Labels: ["ibox-container"]
 	}, &container.HostConfig{
 		AutoRemove: true,
-
+		// NetworkMode:  container.NetworkMode("container:"),
 		PortBindings: portMappings,
 		Mounts: []mount.Mount{
 			{
@@ -148,12 +150,14 @@ func getDockerImageAndCommand(commandArgs []string) (string, []string) {
 	}()
 
 	switch commandName {
-	case "npm", "node", "yarn":
+	case "npm", "node", "yarn", "npx":
 		return "node:" + dockerTag, append([]string{commandName}, additionalArgs...)
-	case "forge":
-		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(commandArgs, " ")}
+	case "forge", "cast":
+		args := escapeArgs(commandArgs)
+		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(args, " ")}
 	case "anvil":
-		fullArgs := append(commandArgs, []string{"--host", "0.0.0.0"}...)
+		args := escapeArgs(commandArgs)
+		fullArgs := append(args, []string{"--host", "0.0.0.0"}...)
 		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(fullArgs, " ")}
 	case "python", "pip":
 		return "python:" + dockerTag, append([]string{commandName}, additionalArgs...)
@@ -267,4 +271,24 @@ func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
 	}
 
 	return nil
+}
+
+func escapeArgs(args []string) []string {
+	var processedArgs []string
+
+	for _, arg := range args {
+		_, errInt := strconv.ParseInt(arg, 10, 64)
+		_, errFloat := strconv.ParseFloat(arg, 64)
+		_, errBool := strconv.ParseBool(arg)
+
+		if errInt == nil || errFloat == nil || errBool == nil {
+
+			processedArgs = append(processedArgs, arg)
+		} else {
+
+			processedArgs = append(processedArgs, "\""+arg+"\"")
+		}
+	}
+
+	return processedArgs
 }
