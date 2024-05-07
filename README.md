@@ -27,3 +27,9 @@ ibox npm install
 ```sh
 ibox cast call 0x6b175474e89094c44da98b954eedeac495271d0f 'totalSupply()(uint256)' --rpc-url https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf
 ```
+
+
+## TODO
+
+- infer platform and fallback to "linux/amd64" if target platform does not exist
+- connect each ibox instance to same network using `NetworkMode:  container.NetworkMode("container:")`
