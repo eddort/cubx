@@ -59,6 +59,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	hostContainerId := EnsureHostContainer(ctx, cli)
+
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image:        docImage,
 		Cmd:          command,
@@ -72,8 +74,8 @@ func main() {
 		ExposedPorts: exposedPorts,
 		// Labels: ["ibox-container"]
 	}, &container.HostConfig{
-		AutoRemove: true,
-		// NetworkMode:  container.NetworkMode("container:"),
+		AutoRemove:   true,
+		NetworkMode:  container.NetworkMode("container:" + hostContainerId),
 		PortBindings: portMappings,
 		Mounts: []mount.Mount{
 			{
