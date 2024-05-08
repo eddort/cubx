@@ -10,6 +10,16 @@ import (
 	"github.com/docker/docker/client"
 )
 
+func ContainsNoHost(args []string) bool {
+	for _, v := range args {
+		fmt.Println(v)
+		if v == "\"--host\"" {
+			return false
+		}
+	}
+	return true
+}
+
 func EnsureHostContainer(ctx context.Context, cli *client.Client) string {
 	filter := filters.NewArgs()
 	filter.Add("label", "ibox-host-container=true")

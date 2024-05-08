@@ -159,8 +159,10 @@ func getDockerImageAndCommand(commandArgs []string) (string, []string) {
 		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(args, " ")}
 	case "anvil":
 		args := escapeArgs(commandArgs)
-		fullArgs := append(args, []string{"--host", "0.0.0.0"}...)
-		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(fullArgs, " ")}
+		if ContainsNoHost(args) {
+			args = append(args, []string{"--host", "0.0.0.0"}...)
+		}
+		return "ghcr.io/foundry-rs/foundry:" + dockerTag, []string{strings.Join(args, " ")}
 	case "python", "pip":
 		return "python:" + dockerTag, append([]string{commandName}, additionalArgs...)
 	case "ruby", "gem":
