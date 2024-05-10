@@ -2,7 +2,6 @@ package docker
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -14,6 +13,9 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/jsonmessage"
+
+	"ibox/internal/streams"
 )
 
 func RunImageAndCommand(dockerImage string, command []string) {
@@ -163,24 +165,5 @@ func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
 	}
 	defer pullRes.Close() // Ensure the response body is closed
 
-	decoder := json.NewDecoder(pullRes)
-	var message map[string]interface{}
-	var prevMsg interface{}
-	for decoder.More() {
-		err := decoder.Decode(&message)
-		if err != nil {
-			// TODO: combine error and return
-			fmt.Fprintln(os.Stderr, "Error decoding JSON stream:", err)
-			os.Exit(1)
-		}
-		if status, ok := message["status"]; ok {
-			if status == prevMsg {
-				continue
-			}
-			prevMsg = status
-			fmt.Println(status)
-		}
-	}
-
-	return nil
+	return jsonmessage.DisplayJSONMessagesToStream(pullRes, streams.NewOut(), nil)
 }
