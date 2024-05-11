@@ -3,6 +3,7 @@ package docker
 import (
 	"context"
 	"fmt"
+	"ibox/internal/platform"
 	"ibox/internal/streams"
 	"os"
 
@@ -24,9 +25,9 @@ func imageExists(ctx context.Context, cli *client.Client, imageName string) (boo
 	return len(images) > 0, nil
 }
 
-func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
+func pullImage(ctx context.Context, cli *client.Client, dockerImage string) error {
 
-	found, err := imageExists(ctx, cli, docImage)
+	found, err := imageExists(ctx, cli, dockerImage)
 	if err != nil {
 		// TODO: combine error and return
 		fmt.Fprintln(os.Stderr, "Error checking image existence:", err)
@@ -37,7 +38,9 @@ func pullImage(ctx context.Context, cli *client.Client, docImage string) error {
 		return nil
 	}
 
-	pullRes, err := cli.ImagePull(ctx, docImage, image.PullOptions{Platform: "linux/amd64"})
+	platforms := platform.FetchPlatforms(dockerImage)
+
+	pullRes, err := cli.ImagePull(ctx, dockerImage, image.PullOptions{Platform: platforms.GetString()})
 
 	if err != nil {
 		// TODO: combine error and return

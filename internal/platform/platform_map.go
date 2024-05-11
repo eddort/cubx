@@ -31,5 +31,11 @@ func (pm *PlatformMap) Get() OsArch {
 	if platform, exists := pm.platforms[key]; exists {
 		return platform
 	}
-	return OsArch{Os: "linux", Arch: "amd64"} // Значение по умолчанию
+	return OsArch{Os: "linux", Arch: "amd64"}
+}
+
+func (pm *PlatformMap) GetString() string {
+	platform := pm.Get()
+
+	return platform.Os + "/" + platform.Arch
 }
