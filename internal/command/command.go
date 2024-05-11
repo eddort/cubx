@@ -1,6 +1,6 @@
 package command
 
-type CommandHandler func(string, []string) (string, []string)
+type CommandHandler func(string, string, []string) (string, string, []string)
 
 var commandHandlers = map[string]CommandHandler{
 	"npm":    nodeCommandHandler,
@@ -16,15 +16,15 @@ var commandHandlers = map[string]CommandHandler{
 	"gem":    rubyCommandHandler,
 }
 
-func GetDockerImageAndCommand(commandArgs []string) (string, []string) {
+func GetDockerImageAndCommand(commandArgs []string) (string, string, []string) {
 	baseCommand := commandArgs[0]
 	additionalArgs := commandArgs[1:]
 
 	commandName, dockerTag := parseBaseCommand(baseCommand)
 
 	if handler, ok := commandHandlers[commandName]; ok {
-		return handler(dockerTag, additionalArgs)
+		return handler(dockerTag, "linux/amd64", additionalArgs)
 	}
 
-	return "ubuntu:" + dockerTag, commandArgs
+	return "ubuntu:" + dockerTag, "linux/amd64", commandArgs
 }
