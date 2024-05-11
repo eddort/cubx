@@ -10,7 +10,6 @@ func foundryCommandHandler(tag string, commandName string, additionalArgs []stri
 	args := escapeArgs(additionalArgs)
 	fullCommand := append([]string{commandName}, args...)
 	return "ghcr.io/foundry-rs/foundry:" + tag, []string{strings.Join(fullCommand, " ")}
-	// return "ghcr.io/foundry-rs/foundry:" + tag, append([]string{commandName}, additionalArgs...)
 }
 
 func pythonCommandHandler(tag string, commandName string, additionalArgs []string) (string, []string) {
