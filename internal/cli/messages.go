@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"ibox/internal/command"
+	"sort"
 	"strings"
 )
 
@@ -32,16 +33,37 @@ func getHelpMessage() string {
 	sb.WriteString(fmt.Sprintf("%s===== %s =====%s\n", colorBlue, header, colorReset))
 	sb.WriteString("\n")
 	sb.WriteString(fmt.Sprintf("%s\n\n", description))
-	sb.WriteString(fmt.Sprintf("%sFlags:%s\n", colorPurple, colorReset))
+	sb.WriteString(fmt.Sprintf("%sFlags%s\n", colorPurple, colorReset))
+	sb.WriteString("\n")
 	for _, f := range flags {
 		sb.WriteString(fmt.Sprintf("%s%-15s%s - %s%s%s\n", colorGreen, f.Flag, colorReset, colorYellow, f.Description, colorReset))
 	}
 	sb.WriteString("\n")
 
-	sb.WriteString(fmt.Sprintf("%sCommands:%s\n", colorPurple, colorReset))
+	sb.WriteString(fmt.Sprintf("%sCommands%s\n", colorPurple, colorReset))
+
+	categories := make(map[string][]command.Command)
 	for _, cmd := range command.CommandHandlers {
-		sb.WriteString(fmt.Sprintf("%s%-15s%s - %s%s%s\n", colorGreen, cmd.Name, colorReset, colorYellow, cmd.Description, colorReset))
+		categories[cmd.Category] = append(categories[cmd.Category], cmd)
 	}
 
+	sortedCategories := make([]string, 0, len(categories))
+	for category := range categories {
+		sortedCategories = append(sortedCategories, category)
+	}
+	sort.Strings(sortedCategories)
+	for _, category := range sortedCategories {
+		commands := categories[category]
+		sort.Slice(commands, func(i, j int) bool {
+			return commands[i].Name < commands[j].Name
+		})
+		sb.WriteString("\n")
+		sb.WriteString(fmt.Sprintf("%s%s:%s\n", colorCyan, category, colorReset))
+		sb.WriteString("\n")
+		for _, cmd := range commands {
+			sb.WriteString(fmt.Sprintf("%s%-15s%s - %s%s%s\n", colorGreen, cmd.Name, colorReset, colorYellow, cmd.Description, colorReset))
+		}
+	}
 	return sb.String()
+
 }
