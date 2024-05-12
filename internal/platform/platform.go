@@ -1,5 +1,7 @@
 package platform
 
+import "ibox/internal/registry"
+
 type OsArch struct {
 	Os   string
 	Arch string
@@ -45,4 +47,19 @@ func isValidOsArch(Os string, Arch string) bool {
 	// check for existence of this combo
 	_, ok := validOsArches[OsArch{Os, Arch}]
 	return ok
+}
+
+func GetPlatforms(imageName string) *PlatformMap {
+	manifests := registry.FetchManifests(imageName)
+
+	var platforms = NewPlatformMap()
+
+	for _, manifest := range *manifests {
+		// fmt.Printf("OS: %s, Architecture: %s, OS Version: %s\n", manifest.Platform.OS, manifest.Platform.Architecture, manifest.Platform.OSVersion)
+		os := manifest.Platform.OS
+		arch := manifest.Platform.Architecture
+		platforms.Add(os, arch)
+	}
+
+	return platforms
 }
