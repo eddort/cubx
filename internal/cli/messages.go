@@ -19,8 +19,8 @@ const (
 )
 
 func getHelpMessage() string {
-	header := "ibox - Your Applications Out of the Box"
-	description := "A program to launch applications in isolated Docker containers."
+	header := "ibox - Isolated App Launch Made Easy and Out of the Box"
+	description := "A program to launch applications in isolated Docker containers"
 	flags := []struct {
 		Flag        string
 		Description string
@@ -30,6 +30,7 @@ func getHelpMessage() string {
 
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("%s===== %s =====%s\n", colorBlue, header, colorReset))
+	sb.WriteString("\n")
 	sb.WriteString(fmt.Sprintf("%s\n\n", description))
 	sb.WriteString(fmt.Sprintf("%sFlags:%s\n", colorPurple, colorReset))
 	for _, f := range flags {

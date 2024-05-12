@@ -1,6 +1,6 @@
 # ibox
 
-<img src="./ibox.png" height="200px" align="right" width="200px">
+<img src="./docs/ibox.png" height="200px" align="right" width="200px">
 
 **ibox** is a tool designed to simplify the deployment and testing of applications by running them inside Docker containers. It abstracts the complexity of Docker commands into a simple interface, allowing developers to launch applications "out of the box".
 - **Simple Command Line Interface**: Run your applications with simple commands.
