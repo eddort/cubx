@@ -39,8 +39,11 @@ func pullImage(ctx context.Context, cli *client.Client, dockerImage string) erro
 	}
 
 	platforms := platform.FetchPlatforms(dockerImage)
+	platformKey := platforms.GetString()
 
-	pullRes, err := cli.ImagePull(ctx, dockerImage, image.PullOptions{Platform: platforms.GetString()})
+	fmt.Printf("Download image with platform: %s", platformKey)
+
+	pullRes, err := cli.ImagePull(ctx, dockerImage, image.PullOptions{Platform: platformKey})
 
 	if err != nil {
 		// TODO: combine error and return

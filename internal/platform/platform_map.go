@@ -1,7 +1,6 @@
 package platform
 
 import (
-	"fmt"
 	"runtime"
 )
 
@@ -26,11 +25,19 @@ func (pm *PlatformMap) Get() OsArch {
 	userOS := runtime.GOOS
 	userArch := runtime.GOARCH
 	key := userOS + "/" + userArch
-	fmt.Println(key)
-	fmt.Println(pm.platforms)
+
 	if platform, exists := pm.platforms[key]; exists {
 		return platform
 	}
+
+	if userArch == "arm64" {
+		key = "linux" + "/" + userArch
+	}
+
+	if platform, exists := pm.platforms[key]; exists {
+		return platform
+	}
+
 	return OsArch{Os: "linux", Arch: "amd64"}
 }
 
