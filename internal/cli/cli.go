@@ -6,11 +6,16 @@ import (
 	"os"
 )
 
+func myUsage() {
+	fmt.Println(getHelpMessage())
+}
+
 func Parse() []string {
+	flag.Usage = myUsage
 	flag.Parse()
 	commandArgs := flag.Args()
 	if len(commandArgs) < 1 {
-		fmt.Println("Usage: ibox command [arguments...]")
+		fmt.Println(getHelpMessage())
 		os.Exit(1)
 	}
 
