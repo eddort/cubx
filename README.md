@@ -15,6 +15,39 @@
 ### Prerequisites
 Ensure you have Docker installed on your machine. **ibox** interfaces directly with Docker, so it's required for operation.
 
+#### MacOS
+
+If you are using macOS, you need to enable the net=host feature in Docker Engine. This feature allows port mapping to the host. While this functionality is enabled by default on Linux, it is still in beta on macOS and requires manual activation.
+
+For more information, visit the following link: https://docs.docker.com/network/drivers/host/#docker-desktop
+
+### Installation
+You need to clone the project repository:
+
+```bash
+git clone git@github.com:eddort/ibox.git
+```
+
+Then, navigate to the project directory:
+
+```bash
+cd ibox
+```
+
+Run the following command to build the project:
+
+```bash
+go build
+```
+
+Now, you can use the command:
+
+```bash
+./ibox
+```
+
+This will allow you to start using the `ibox` tool.
+
 ### Usage
 
 To display the available programs, enter
