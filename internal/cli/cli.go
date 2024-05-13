@@ -10,20 +10,24 @@ func myUsage() {
 	fmt.Println(getHelpMessage())
 }
 
-func Parse() []string {
+type Flags struct {
+	IsSelectMode bool
+}
+
+func Parse() ([]string, Flags) {
 	flag.Usage = myUsage
-	flag.Bool("kek", false, "Activate select mode")
-	flag.Bool("lol", false, "Activate select mode")
-	flag.Bool("a", false, "Activate select mode")
-	flag.Bool("b", false, "Activate select mode")
-	flag.Bool("c", false, "Activate select mode")
+	IsSelectMode := flag.Bool("select", false, "Activate select mode")
+	// flag.Bool("lol", false, "Activate select mode")
+	// flag.Bool("a", false, "Activate select mode")
+	// flag.Bool("b", false, "Activate select mode")
+	// kek := flag.String("select", "latest", "Select")
 	flag.Parse()
 	commandArgs := flag.Args()
-	fmt.Println(commandArgs)
+	fmt.Println(commandArgs, "FLAGS", *IsSelectMode)
 	if len(commandArgs) < 1 {
 		fmt.Println(getHelpMessage())
 		os.Exit(1)
 	}
 
-	return commandArgs
+	return commandArgs, Flags{IsSelectMode: *IsSelectMode}
 }
