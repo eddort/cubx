@@ -16,7 +16,7 @@ func Parse() ([]string, config.CLI) {
 
 	IsSelectMode := flag.Bool("select", false, "Interactive selection of the required application version")
 
-	FileIgnores := FlagArray("ignore-file", "Files to ignore (can be specified multiple times)")
+	FileIgnores := FlagArray("ignore-path", "Files or dirs to ignore (can be specified multiple times)")
 
 	flag.Parse()
 	commandArgs := flag.Args()
