@@ -9,5 +9,5 @@ import (
 func main() {
 	commandArgs, flags := cli.Parse()
 	docImage, command := command.GetDockerImageAndCommand(commandArgs, flags)
-	docker.RunImageAndCommand(docImage, command)
+	docker.RunImageAndCommand(docImage, command, flags)
 }
