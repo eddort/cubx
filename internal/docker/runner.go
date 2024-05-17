@@ -122,6 +122,16 @@ func cleanUpContainer(cli *client.Client, ctx context.Context, containerID strin
 	// }
 }
 
+// createTempDir creates a temporary empty directory
+func createTempDir() string {
+	tempDir, err := os.MkdirTemp("", "empty")
+	if err != nil {
+		fmt.Println("Error creating temporary directory:", err)
+		os.Exit(1)
+	}
+	return tempDir
+}
+
 func generateMounts(ignores []string) []mount.Mount {
 	mounts := []mount.Mount{
 		{
@@ -132,15 +142,37 @@ func generateMounts(ignores []string) []mount.Mount {
 	}
 
 	for _, ignore := range ignores {
+		// Convert the path to an absolute path
 		absPath, err := filepath.Abs(ignore)
 		if err != nil {
 			fmt.Println("Error converting path to absolute:", err)
 			os.Exit(1)
 		}
 
+		// Check if the path exists
+		fileInfo, err := os.Stat(absPath)
+		if os.IsNotExist(err) {
+			fmt.Printf("Path does not exist: %s\n", absPath)
+			continue
+		}
+
+		if err != nil {
+			fmt.Println("Error stating path:", err)
+			os.Exit(1)
+		}
+
+		var source string
+		if fileInfo.IsDir() {
+			// Create a temporary empty directory
+			source = createTempDir()
+		} else {
+			// Use /dev/null for files
+			source = "/dev/null"
+		}
+
 		mount := mount.Mount{
 			Type:   mount.TypeBind,
-			Source: "/dev/null",
+			Source: source,
 			Target: "/app/" + filepath.Base(absPath),
 		}
 
