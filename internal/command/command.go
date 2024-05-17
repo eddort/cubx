@@ -1,6 +1,12 @@
 package command
 
-type CommandHandler func(string, string, []string) (string, []string)
+import (
+	"ibox/internal/config"
+	"ibox/internal/registry"
+	"ibox/internal/tui"
+)
+
+type CommandHandler func(string, string, []string) (imageName string, imageTag string, args []string)
 
 type Command struct {
 	Name           string
@@ -23,7 +29,7 @@ var CommandHandlers = []Command{
 	{Name: "gem", CommandHandler: rubyCommandHandler, Description: "Manage Ruby gems", Category: "Ruby"},
 }
 
-func GetDockerImageAndCommand(commandArgs []string) (string, []string) {
+func GetDockerImageAndCommand(commandArgs []string, config config.CLI) (string, []string) {
 	baseCommand := commandArgs[0]
 	additionalArgs := commandArgs[1:]
 
@@ -31,7 +37,15 @@ func GetDockerImageAndCommand(commandArgs []string) (string, []string) {
 
 	for _, command := range CommandHandlers {
 		if command.Name == commandName {
-			return command.CommandHandler(dockerTag, commandName, additionalArgs)
+
+			image, tag, args := command.CommandHandler(dockerTag, commandName, additionalArgs)
+
+			if config.IsSelectMode {
+				tags, _ := registry.FetchTags(image)
+				tag = tui.RunInteractivePrompt(tags, "latest")
+			}
+
+			return image + ":" + tag, args
 		}
 	}
 

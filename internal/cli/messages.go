@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"flag"
 	"fmt"
 	"ibox/internal/command"
 	"sort"
@@ -26,7 +27,7 @@ func getHelpMessage() string {
 		Flag        string
 		Description string
 	}{
-		{"--help", "Displays this help information"},
+		{"help", "Displays this help information"},
 	}
 
 	var sb strings.Builder
@@ -35,9 +36,14 @@ func getHelpMessage() string {
 	sb.WriteString(fmt.Sprintf("%s\n\n", description))
 	sb.WriteString(fmt.Sprintf("%sFlags%s\n", colorPurple, colorReset))
 	sb.WriteString("\n")
+
 	for _, f := range flags {
-		sb.WriteString(fmt.Sprintf("%s%-15s%s - %s%s%s\n", colorGreen, f.Flag, colorReset, colorYellow, f.Description, colorReset))
+		sb.WriteString(fmt.Sprintf("%s%-15s%s - %s%s%s\n", colorGreen, "--"+f.Flag, colorReset, colorYellow, f.Description, colorReset))
 	}
+	flag.VisitAll(func(f *flag.Flag) {
+		sb.WriteString(fmt.Sprintf("%s%-15s%s - %s%s%s\n", colorGreen, "--"+f.Name, colorReset, colorYellow, f.Usage, colorReset))
+	})
+
 	sb.WriteString("\n")
 
 	sb.WriteString(fmt.Sprintf("%sCommands%s\n", colorPurple, colorReset))

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	commandArgs := cli.Parse()
-	docImage, command := command.GetDockerImageAndCommand(commandArgs)
+	commandArgs, flags := cli.Parse()
+	docImage, command := command.GetDockerImageAndCommand(commandArgs, flags)
 	docker.RunImageAndCommand(docImage, command)
 }
