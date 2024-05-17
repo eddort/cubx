@@ -1,4 +1,4 @@
-package cli
+package tui
 
 import (
 	"fmt"
@@ -8,32 +8,28 @@ import (
 	bubbletea "github.com/charmbracelet/bubbletea"
 )
 
-type model struct {
+type myModel struct {
 	cursor   int
 	choices  []string
 	filtered []string
 	input    string
 	pageSize int
+	selected string
 }
 
-func initialModel(items []string) model {
-	// var items = []string{
-	// 	"apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew",
-	// }
-
-	// items, _ := registry.FetchTags("node")
-	return model{
-		choices:  items,
-		filtered: items,
-		pageSize: 10,
+func initialModel(choices []string) myModel {
+	return myModel{
+		choices:  choices,
+		filtered: choices,
+		pageSize: 5,
 	}
 }
 
-func (m model) Init() bubbletea.Cmd {
+func (m myModel) Init() bubbletea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
+func (m myModel) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
 	switch msg := msg.(type) {
 	case bubbletea.KeyMsg:
 		switch msg.String() {
@@ -41,7 +37,7 @@ func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
 			return m, bubbletea.Quit
 		case "enter":
 			if len(m.filtered) > 0 && m.cursor < len(m.filtered) {
-				fmt.Println("You selected:", m.filtered[m.cursor])
+				m.selected = m.filtered[m.cursor]
 				return m, bubbletea.Quit
 			}
 		case "backspace":
@@ -69,7 +65,7 @@ func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m myModel) View() string {
 	var s strings.Builder
 	s.WriteString(fmt.Sprintf("Search: %s\n\n", m.input))
 	start := max(0, m.cursor-m.pageSize/2)
@@ -102,10 +98,23 @@ func max(a, b int) int {
 	return b
 }
 
-func RunInteractivePrompt(variants []string) {
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func RunInteractivePrompt(variants []string, defaultVariant string) string {
 	p := bubbletea.NewProgram(initialModel(variants))
-	if _, err := p.Run(); err != nil {
+	mdl, err := p.Run()
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error running program: %v\n", err)
 		os.Exit(1)
 	}
+	// Type assertion to get a specific type
+	if m, ok := mdl.(myModel); ok {
+		return m.selected
+	}
+	return defaultVariant
 }

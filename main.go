@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"ibox/internal/cli"
 	"ibox/internal/command"
 	"ibox/internal/docker"
@@ -9,7 +8,6 @@ import (
 
 func main() {
 	commandArgs, flags := cli.Parse()
-	docImage, command := command.GetDockerImageAndCommand(commandArgs)
-	fmt.Println(flags.IsSelectMode)
+	docImage, command := command.GetDockerImageAndCommand(commandArgs, flags)
 	docker.RunImageAndCommand(docImage, command)
 }
