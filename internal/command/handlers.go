@@ -19,3 +19,7 @@ func pythonCommandHandler(tag string, commandName string, additionalArgs []strin
 func rubyCommandHandler(tag string, commandName string, additionalArgs []string) (string, string, []string) {
 	return "ruby", tag, append([]string{commandName}, additionalArgs...)
 }
+
+func ruffCommandHandler(tag string, commandName string, additionalArgs []string) (string, string, []string) {
+	return "ghcr.io/astral-sh/ruff", tag, additionalArgs
+}
