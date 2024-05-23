@@ -1,4 +1,4 @@
-module ibox
+module cubx
 
 go 1.21
 

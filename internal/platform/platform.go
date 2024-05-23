@@ -1,6 +1,6 @@
 package platform
 
-import "ibox/internal/registry"
+import "cubx/internal/registry"
 
 type OsArch struct {
 	Os   string

@@ -1,9 +1,9 @@
 package cli
 
 import (
+	"cubx/internal/config"
 	"flag"
 	"fmt"
-	"ibox/internal/config"
 	"os"
 )
 

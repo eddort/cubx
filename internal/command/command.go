@@ -1,9 +1,9 @@
 package command
 
 import (
-	"ibox/internal/config"
-	"ibox/internal/registry"
-	"ibox/internal/tui"
+	"cubx/internal/config"
+	"cubx/internal/registry"
+	"cubx/internal/tui"
 )
 
 type CommandHandler func(string, string, []string) (imageName string, imageTag string, args []string)
