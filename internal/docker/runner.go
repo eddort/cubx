@@ -2,8 +2,8 @@ package docker
 
 import (
 	"context"
+	"cubx/internal/config"
 	"fmt"
-	"ibox/internal/config"
 	"io"
 	"os"
 	"os/signal"
@@ -44,7 +44,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI)
 		OpenStdin:    true, // Ensure the stdin is open
 		StdinOnce:    false,
 		// ExposedPorts: exposedPorts,
-		// Labels: ["ibox-container"]
+		// Labels: ["cubx-container"]
 	}, &container.HostConfig{
 		AutoRemove: true,
 		// NetworkMode:  container.NetworkMode("container:" + hostContainerId),

@@ -1,9 +1,9 @@
 package command
 
 import (
-	"ibox/internal/config"
-	"ibox/internal/registry"
-	"ibox/internal/tui"
+	"cubx/internal/config"
+	"cubx/internal/registry"
+	"cubx/internal/tui"
 )
 
 type CommandHandler func(string, string, []string) (imageName string, imageTag string, args []string)
@@ -24,6 +24,7 @@ var CommandHandlers = []Command{
 	{Name: "cast", CommandHandler: foundryCommandHandler, Description: "Send transactions or query blockchain state with Cast", Category: "Ethereum"},
 	{Name: "anvil", CommandHandler: foundryCommandHandler, Description: "Run a local Ethereum node using Anvil", Category: "Ethereum"},
 	{Name: "python", CommandHandler: pythonCommandHandler, Description: "Execute Python scripts", Category: "Python"},
+	{Name: "ruff", CommandHandler: ruffCommandHandler, Description: "Format python lib", Category: "Python"},
 	{Name: "pip", CommandHandler: pythonCommandHandler, Description: "Manage Python packages with pip", Category: "Python"},
 	{Name: "ruby", CommandHandler: rubyCommandHandler, Description: "Execute Ruby scripts", Category: "Ruby"},
 	{Name: "gem", CommandHandler: rubyCommandHandler, Description: "Manage Ruby gems", Category: "Ruby"},

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"ibox/internal/cli"
-	"ibox/internal/command"
-	"ibox/internal/docker"
+	"cubx/internal/cli"
+	"cubx/internal/command"
+	"cubx/internal/docker"
 )
 
 func main() {
