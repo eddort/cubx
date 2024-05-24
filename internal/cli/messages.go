@@ -20,7 +20,7 @@ const (
 )
 
 func getHelpMessage() string {
-	header := "ibox - Isolated App Launch Made Easy and Out of the Box"
+	header := "ibox - Isolated App Launch Made Easy"
 	description := "A program to launch applications in isolated Docker containers"
 	flags := []struct {
 		Flag        string

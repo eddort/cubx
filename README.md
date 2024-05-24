@@ -2,9 +2,9 @@
 
 <img src="./docs/ibox.png" height="200px" align="right" width="200px">
 
-**ibox** is a tool designed to simplify the deployment and testing of applications by running them inside Docker containers. It abstracts the complexity of Docker commands into a simple interface, allowing developers to launch applications "out of the box".
+**ibox** is a tool designed to simplify the deployment and testing of applications by running them inside Docker containers.
 - **Simple Command Line Interface**: Run applications with simple commands as if they were installed locally.
-- **Port Mapping Support**: Out of the box, all application ports are automatically mapped to the host.
+- **Port Mapping Support**: All application ports are automatically mapped to the host.
 - **Lightweight and Fast**: Minimal overhead and speedy execution of containers.
 - **Automatic Working Directory Mounting**: Automatically mounts the working directory as if you were running the program locally.
 - **Automatic Platform Detection**: Automatically detects your OS and processor architecture to download the most suitable container image.
