@@ -2,10 +2,12 @@ package docker
 
 import (
 	"context"
+	"cubx/internal/config"
 	"fmt"
 	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/docker/docker/api/types/container"
@@ -13,7 +15,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func RunImageAndCommand(dockerImage string, command []string) {
+func RunImageAndCommand(dockerImage string, command []string, config config.CLI) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error creating Docker client:", err)
@@ -42,19 +44,13 @@ func RunImageAndCommand(dockerImage string, command []string) {
 		OpenStdin:    true, // Ensure the stdin is open
 		StdinOnce:    false,
 		// ExposedPorts: exposedPorts,
-		// Labels: ["ibox-container"]
+		// Labels: ["cubx-container"]
 	}, &container.HostConfig{
 		AutoRemove: true,
 		// NetworkMode:  container.NetworkMode("container:" + hostContainerId),
 		NetworkMode: "host",
 		// PortBindings: portMappings,
-		Mounts: []mount.Mount{
-			{
-				Type:   mount.TypeBind,
-				Source: getCurrentDir(),
-				Target: "/app",
-			},
-		},
+		Mounts: generateMounts(config.FileIgnores),
 	}, nil, nil, "")
 
 	if err != nil {
@@ -124,4 +120,64 @@ func cleanUpContainer(cli *client.Client, ctx context.Context, containerID strin
 	// if err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{Force: true}); err != nil {
 	// 	fmt.Fprintf(os.Stderr, "Failed to delete the container: %v\n", err)
 	// }
+}
+
+// createTempDir creates a temporary empty directory
+func createTempDir() string {
+	tempDir, err := os.MkdirTemp("", "empty")
+	if err != nil {
+		fmt.Println("Error creating temporary directory:", err)
+		os.Exit(1)
+	}
+	return tempDir
+}
+
+func generateMounts(ignores []string) []mount.Mount {
+	mounts := []mount.Mount{
+		{
+			Type:   mount.TypeBind,
+			Source: getCurrentDir(),
+			Target: "/app",
+		},
+	}
+
+	for _, ignore := range ignores {
+		// Convert the path to an absolute path
+		absPath, err := filepath.Abs(ignore)
+		if err != nil {
+			fmt.Println("Error converting path to absolute:", err)
+			os.Exit(1)
+		}
+
+		// Check if the path exists
+		fileInfo, err := os.Stat(absPath)
+		if os.IsNotExist(err) {
+			fmt.Printf("Path does not exist: %s\n", absPath)
+			continue
+		}
+
+		if err != nil {
+			fmt.Println("Error stating path:", err)
+			os.Exit(1)
+		}
+
+		var source string
+		if fileInfo.IsDir() {
+			// Create a temporary empty directory
+			source = createTempDir()
+		} else {
+			// Use /dev/null for files
+			source = "/dev/null"
+		}
+
+		mount := mount.Mount{
+			Type:   mount.TypeBind,
+			Source: source,
+			Target: "/app/" + filepath.Base(absPath),
+		}
+
+		mounts = append(mounts, mount)
+	}
+
+	return mounts
 }

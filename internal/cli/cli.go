@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"cubx/internal/config"
 	"flag"
 	"fmt"
 	"os"
@@ -10,14 +11,20 @@ func myUsage() {
 	fmt.Println(getHelpMessage())
 }
 
-func Parse() []string {
+func Parse() ([]string, config.CLI) {
 	flag.Usage = myUsage
+
+	IsSelectMode := flag.Bool("select", false, "Interactive selection of the required application version")
+
+	FileIgnores := FlagArray("ignore-path", "Files or dirs to ignore (can be specified multiple times)")
+
 	flag.Parse()
 	commandArgs := flag.Args()
+
 	if len(commandArgs) < 1 {
 		fmt.Println(getHelpMessage())
 		os.Exit(1)
 	}
 
-	return commandArgs
+	return commandArgs, config.CLI{IsSelectMode: *IsSelectMode, FileIgnores: *FileIgnores}
 }

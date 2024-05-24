@@ -1,6 +1,12 @@
 package command
 
-type CommandHandler func(string, string, []string) (string, []string)
+import (
+	"cubx/internal/config"
+	"cubx/internal/registry"
+	"cubx/internal/tui"
+)
+
+type CommandHandler func(string, string, []string) (imageName string, imageTag string, args []string)
 
 type Command struct {
 	Name           string
@@ -18,12 +24,13 @@ var CommandHandlers = []Command{
 	{Name: "cast", CommandHandler: foundryCommandHandler, Description: "Send transactions or query blockchain state with Cast", Category: "Ethereum"},
 	{Name: "anvil", CommandHandler: foundryCommandHandler, Description: "Run a local Ethereum node using Anvil", Category: "Ethereum"},
 	{Name: "python", CommandHandler: pythonCommandHandler, Description: "Execute Python scripts", Category: "Python"},
+	{Name: "ruff", CommandHandler: ruffCommandHandler, Description: "Format python lib", Category: "Python"},
 	{Name: "pip", CommandHandler: pythonCommandHandler, Description: "Manage Python packages with pip", Category: "Python"},
 	{Name: "ruby", CommandHandler: rubyCommandHandler, Description: "Execute Ruby scripts", Category: "Ruby"},
 	{Name: "gem", CommandHandler: rubyCommandHandler, Description: "Manage Ruby gems", Category: "Ruby"},
 }
 
-func GetDockerImageAndCommand(commandArgs []string) (string, []string) {
+func GetDockerImageAndCommand(commandArgs []string, config config.CLI) (string, []string) {
 	baseCommand := commandArgs[0]
 	additionalArgs := commandArgs[1:]
 
@@ -31,7 +38,15 @@ func GetDockerImageAndCommand(commandArgs []string) (string, []string) {
 
 	for _, command := range CommandHandlers {
 		if command.Name == commandName {
-			return command.CommandHandler(dockerTag, commandName, additionalArgs)
+
+			image, tag, args := command.CommandHandler(dockerTag, commandName, additionalArgs)
+
+			if config.IsSelectMode {
+				tags, _ := registry.FetchTags(image)
+				tag = tui.RunInteractivePrompt(tags, "latest")
+			}
+
+			return image + ":" + tag, args
 		}
 	}
 

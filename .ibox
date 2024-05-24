@@ -1,0 +1,17 @@
+commands:
+  - name: node
+    aliases: ["npm", "npx", "yarn"]
+    image: node
+    handler: default
+  - name: foundry
+    aliases: []
+    image: ghcr.io/foundry-rs/foundry
+    handler: concat_args
+  - name: python
+    aliases: []
+    image: python
+    handler: default
+  - name: ruby
+    aliases: []
+    image: ruby
+    handler: default

@@ -1,8 +1,8 @@
-# ibox
+# cubx
 
-<img src="./docs/ibox.png" height="200px" align="right" width="200px">
+<img src="./docs/cubx.png" height="300px" align="right" width="300px">
 
-**ibox** is a tool designed to simplify the deployment and testing of applications by running them inside Docker containers.
+**cubx** is a tool designed to simplify the deployment and testing of applications by running them inside Docker containers.
 - **Simple Command Line Interface**: Run applications with simple commands as if they were installed locally.
 - **Port Mapping Support**: All application ports are automatically mapped to the host.
 - **Lightweight and Fast**: Minimal overhead and speedy execution of containers.
@@ -13,7 +13,7 @@
 ## Getting Started
 
 ### Prerequisites
-Ensure you have Docker installed on your machine. **ibox** interfaces directly with Docker, so it's required for operation.
+Ensure you have Docker installed on your machine. **cubx** interfaces directly with Docker, so it's required for operation.
 
 #### MacOS
 
@@ -25,13 +25,13 @@ For more information, visit the following link: https://docs.docker.com/network/
 You need to clone the project repository:
 
 ```bash
-git clone git@github.com:eddort/ibox.git
+git clone git@github.com:eddort/cubx.git
 ```
 
 Then, navigate to the project directory:
 
 ```bash
-cd ibox
+cd cubx
 ```
 
 Run the following command to build the project:
@@ -43,32 +43,32 @@ go build
 Now, you can use the command:
 
 ```bash
-./ibox
+./cubx
 ```
 
-This will allow you to start using the `ibox` tool.
+This will allow you to start using the `cubx` tool.
 
 ### Usage
 
 To display the available programs, enter
 
 ```sh
-ibox -h
+cubx -h
 ```
 Output:
 
-![ibox help](./docs/help-example.png)
+![cubx help](./docs/help-example.png)
 
-To run an application using ibox:
+To run an application using cubx:
 
 ```sh
-ibox node test.js
+cubx node test.js
 ```
 
 ```sh
-ibox npm install
+cubx npm install
 ```
 
 ```sh
-ibox cast call 0x6b175474e89094c44da98b954eedeac495271d0f 'totalSupply()(uint256)' --rpc-url https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf
+cubx cast call 0x6b175474e89094c44da98b954eedeac495271d0f 'totalSupply()(uint256)' --rpc-url https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf
 ```
