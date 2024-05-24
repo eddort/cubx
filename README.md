@@ -2,13 +2,13 @@
 
 <img src="./docs/cubx.png" height="300px" align="right" width="300px">
 
-**cubx** is a tool designed to simplify the deployment and testing of applications by running them inside Docker containers.
+**Cubx** is a versatile tool that simplifies running console programs inside Docker containers. It is suitable for anyone who wants to use applications without the need to install them on their device, providing ease and convenience in operation..
 - **Simple Command Line Interface**: Run applications with simple commands as if they were installed locally.
 - **Port Mapping Support**: All application ports are automatically mapped to the host.
 - **Lightweight and Fast**: Minimal overhead and speedy execution of containers.
 - **Automatic Working Directory Mounting**: Automatically mounts the working directory as if you were running the program locally.
 - **Automatic Platform Detection**: Automatically detects your OS and processor architecture to download the most suitable container image.
-- **Flexible Software Versioning**: Use any version of the software by specifying the image tag after a colon. For example: `node:14 test.js`, `npm:14 install`, `yarn:14 add [package]`.
+- **Flexible Software Versioning**: Use any version of the software by specifying the image tag after a colon. For example: `cubx node:14 test.js`, `cubx npm:14 install`, `cubx yarn:14 add [package]`.
 
 ## Getting Started
 
