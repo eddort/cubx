@@ -45,8 +45,10 @@ Now, you can use the command:
 ```bash
 ./cubx
 ```
+> You can then specify a `PATH` variable in your environment to make `cubx` available globally
 
 This will allow you to start using the `cubx` tool.
+
 
 ### Usage
 
@@ -62,7 +64,27 @@ Output:
 To run an application using cubx:
 
 ```sh
-cubx node test.js
+cubx node --eval 'console.log("Hello from Cubx\n",`node version: ${process.version}`)'
+```
+
+Output:
+
+```sh
+Hello from Cubx
+ node version: v22.1.0
+```
+
+We can also specify a specific version of the program with ":"
+
+```sh
+cubx node:14 --eval 'console.log("Hello from Cubx\n",`node version: ${process.version}`)'
+```
+
+Output:
+
+```sh
+Hello from Cubx
+ node version: v14.21.3
 ```
 
 ```sh
