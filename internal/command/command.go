@@ -4,14 +4,22 @@ import (
 	"cubx/internal/config"
 	"cubx/internal/registry"
 	"cubx/internal/tui"
+	"log"
 	"strings"
+
+	"github.com/google/shlex"
 )
 
 func HandleProgram(tag string, commandName string, args []string, programConfig config.Program) (string, string, []string) {
 	arguments := args
 
 	if programConfig.Command != "" {
-		arguments = append([]string{programConfig.Command}, args...)
+		parts, err := shlex.Split(programConfig.Command)
+		if err != nil {
+			log.Fatalf("Error parsing command: %v", err)
+		}
+
+		arguments = append(parts, args...)
 	}
 
 	if programConfig.Serializer == "string" {
