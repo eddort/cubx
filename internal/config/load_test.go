@@ -130,7 +130,7 @@ programs:
 
 	homeConfigPath := filepath.Join(homeCubxDir, "config.yaml")
 	homeConfigContent := []byte(`
-Programs:
+programs:
   - name: homeProgram
     aliases: ["homealias"]
     image: homeimage

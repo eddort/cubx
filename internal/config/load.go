@@ -6,78 +6,95 @@ import (
 	"path/filepath"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) *ProgramConfig {
-	ProgramMap := make(map[string]Program)
-	for _, cmd := range baseConfig.Programs {
-		ProgramMap[cmd.Name] = cmd
+	programSet := make(map[string]bool)
+	var mergedPrograms []Program
+
+	// Add programs from baseConfig
+	for _, program := range baseConfig.Programs {
+		if !programSet[program.Name] {
+			mergedPrograms = append(mergedPrograms, program)
+			programSet[program.Name] = true
+		}
 	}
-	for _, cmd := range overrideConfig.Programs {
-		ProgramMap[cmd.Name] = cmd
+
+	// Add/override programs from overrideConfig
+	for _, program := range overrideConfig.Programs {
+		if !programSet[program.Name] {
+			mergedPrograms = append(mergedPrograms, program)
+			programSet[program.Name] = true
+		} else {
+			// Replace existing program with the one from overrideConfig
+			for i := range mergedPrograms {
+				if mergedPrograms[i].Name == program.Name {
+					mergedPrograms[i] = program
+					break
+				}
+			}
+		}
 	}
-	mergedPrograms := make([]Program, 0, len(ProgramMap))
-	for _, cmd := range ProgramMap {
-		mergedPrograms = append(mergedPrograms, cmd)
-	}
+
 	return &ProgramConfig{Programs: mergedPrograms}
 }
 
-func LoadConfig() (*ProgramConfig, []string, error) {
-	configFile := "config"
-	var loadedConfigs []string
-
-	// Create a new viper instance for the current directory config
-	viperCurrent := viper.New()
-	viperCurrent.SetConfigName(configFile)
-	viperCurrent.SetConfigType("yaml")
-	viperCurrent.AddConfigPath(".cubx")
-
-	if err := viperCurrent.ReadInConfig(); err == nil {
-		loadedConfigs = append(loadedConfigs, viperCurrent.ConfigFileUsed())
-	} else if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-		return nil, nil, err
-	}
-
-	// Create a new viper instance for the home directory config
-	viperHome := viper.New()
-	viperHome.SetConfigName(configFile)
-	viperHome.SetConfigType("yaml")
-	home, err := os.UserHomeDir()
+func loadConfigFile(filePath string) (*ProgramConfig, error) {
+	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error getting home directory: %w", err)
-	}
-	viperHome.AddConfigPath(filepath.Join(home, ".cubx"))
-
-	if err := viperHome.ReadInConfig(); err == nil {
-		if viperHome.ConfigFileUsed() != "" && viperHome.ConfigFileUsed() != viperCurrent.ConfigFileUsed() {
-			loadedConfigs = append(loadedConfigs, viperHome.ConfigFileUsed())
+		if os.IsNotExist(err) {
+			return &ProgramConfig{}, nil
 		}
-	} else if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-		return nil, nil, err
+		return nil, err
 	}
 
-	var currentConfig ProgramConfig
-	if err := viperCurrent.Unmarshal(&currentConfig); err != nil {
-		return nil, nil, fmt.Errorf("unable to decode current directory config into struct: %w", err)
+	var config ProgramConfig
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		return nil, fmt.Errorf("unable to decode file %s into struct: %w", filePath, err)
 	}
-
-	var homeConfig ProgramConfig
-	if err := viperHome.Unmarshal(&homeConfig); err != nil {
-		return nil, nil, fmt.Errorf("unable to decode home directory config into struct: %w", err)
-	}
-
-	// Merge the configurations
-	finalConfig := mergeConfigs(&currentConfig, &homeConfig)
 
 	// Initialize the validator
 	validate := validator.New()
 
 	// Validate the configuration structure
-	if err := validate.Struct(finalConfig); err != nil {
-		return nil, nil, fmt.Errorf("validation error: %w", err)
+	if err := validate.Struct(config); err != nil {
+		return nil, fmt.Errorf("validation error: %w", err)
 	}
+
+	return &config, nil
+}
+
+func LoadConfig() (*ProgramConfig, []string, error) {
+	configFileName := "config.yaml"
+	var loadedConfigs []string
+
+	// Load current directory config
+	currentDirConfigPath := filepath.Join(".cubx", configFileName)
+	currentConfig, err := loadConfigFile(currentDirConfigPath)
+	if err != nil {
+		return nil, nil, err
+	}
+	if _, err := os.Stat(currentDirConfigPath); err == nil {
+		loadedConfigs = append(loadedConfigs, currentDirConfigPath)
+	}
+
+	// Load home directory config
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, nil, fmt.Errorf("error getting home directory: %w", err)
+	}
+	homeConfigPath := filepath.Join(home, ".cubx", configFileName)
+	homeConfig, err := loadConfigFile(homeConfigPath)
+	if err != nil {
+		return nil, nil, err
+	}
+	if _, err := os.Stat(homeConfigPath); err == nil && homeConfigPath != currentDirConfigPath {
+		loadedConfigs = append(loadedConfigs, homeConfigPath)
+	}
+
+	// Merge the configurations
+	finalConfig := mergeConfigs(currentConfig, homeConfig)
 
 	return finalConfig, loadedConfigs, nil
 }
