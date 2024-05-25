@@ -50,7 +50,11 @@ func getHelpMessage(configuration config.ProgramConfig) string {
 
 	categories := make(map[string][]config.Program)
 	for _, cmd := range configuration.Programs {
-		categories[cmd.Category] = append(categories[cmd.Category], cmd)
+		category := cmd.Category
+		if category == "" {
+			category = "Default"
+		}
+		categories[category] = append(categories[category], cmd)
 	}
 
 	sortedCategories := make([]string, 0, len(categories))
