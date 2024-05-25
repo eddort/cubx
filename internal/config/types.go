@@ -5,7 +5,7 @@ type CLI struct {
 	FileIgnores  []string
 }
 
-type Command struct {
+type Program struct {
 	Name        string   `mapstructure:"name" validate:"required"`
 	Aliases     []string `mapstructure:"aliases"`
 	Image       string   `mapstructure:"image" validate:"required"`
@@ -13,6 +13,6 @@ type Command struct {
 	Description string   `mapstructure:"description"`
 }
 
-type CommandConfig struct {
-	Commands []Command `mapstructure:"commands" validate:"dive"`
+type ProgramConfig struct {
+	Programs []Program `mapstructure:"programs" validate:"dive"`
 }

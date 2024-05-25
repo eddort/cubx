@@ -27,12 +27,12 @@ func TestLoadValidConfig(t *testing.T) {
 
 	validConfigPath := filepath.Join(cubxDir, "config.yaml")
 	validConfigContent := []byte(`
-commands:
-  - name: testcommand
+programs:
+  - name: testProgram
     aliases: ["testalias"]
     image: testimage
     handler: testhandler
-    description: "Test command description"
+    description: "Test Program description"
 `)
 	if err := os.WriteFile(validConfigPath, validConfigContent, 0644); err != nil {
 		t.Fatalf("Failed to write valid config file: %v", err)
@@ -55,16 +55,16 @@ commands:
 		t.Fatalf("Expected config file used: %v, got: %v", expectedLoadedConfigs, loadedConfigs)
 	}
 
-	if len(config.Commands) != 1 {
-		t.Fatalf("Expected 1 command, got %d", len(config.Commands))
+	if len(config.Programs) != 1 {
+		t.Fatalf("Expected 1 Program, got %d", len(config.Programs))
 	}
 
-	cmd := config.Commands[0]
-	if cmd.Name != "testcommand" {
-		t.Errorf("Expected command name 'testcommand', got '%s'", cmd.Name)
+	cmd := config.Programs[0]
+	if cmd.Name != "testProgram" {
+		t.Errorf("Expected Program name 'testProgram', got '%s'", cmd.Name)
 	}
 	if cmd.Handler != "testhandler" {
-		t.Errorf("Expected command handler 'testhandler', got '%s'", cmd.Handler)
+		t.Errorf("Expected Program handler 'testhandler', got '%s'", cmd.Handler)
 	}
 }
 
@@ -79,11 +79,11 @@ func TestLoadInvalidConfig(t *testing.T) {
 
 	invalidConfigPath := filepath.Join(cubxDir, "config.yaml")
 	invalidConfigContent := []byte(`
-commands:
+programs:
   - aliases: ["testalias"]
     image: testimage
     handler: testhandler
-    description: "Test command description without name"
+    description: "Test Program description without name"
 `)
 	if err := os.WriteFile(invalidConfigPath, invalidConfigContent, 0644); err != nil {
 		t.Fatalf("Failed to write invalid config file: %v", err)
@@ -111,12 +111,12 @@ func TestMergeConfig(t *testing.T) {
 
 	localConfigPath := filepath.Join(localCubxDir, "config.yaml")
 	localConfigContent := []byte(`
-commands:
-  - name: localcommand
+programs:
+  - name: localProgram
     aliases: ["localalias"]
     image: localimage
     handler: localhandler
-    description: "Local command description"
+    description: "Local Program description"
 `)
 	if err := os.WriteFile(localConfigPath, localConfigContent, 0644); err != nil {
 		t.Fatalf("Failed to write local config file: %v", err)
@@ -130,12 +130,12 @@ commands:
 
 	homeConfigPath := filepath.Join(homeCubxDir, "config.yaml")
 	homeConfigContent := []byte(`
-commands:
-  - name: homecommand
+Programs:
+  - name: homeProgram
     aliases: ["homealias"]
     image: homeimage
     handler: homehandler
-    description: "Home command description"
+    description: "Home Program description"
 `)
 	if err := os.WriteFile(homeConfigPath, homeConfigContent, 0644); err != nil {
 		t.Fatalf("Failed to write home config file: %v", err)
@@ -172,23 +172,23 @@ commands:
 		t.Fatalf("Expected %d loaded config files, got %d: %v", len(expectedLoadedConfigs), len(loadedConfigs), loadedConfigs)
 	}
 
-	if len(config.Commands) != 2 {
-		t.Fatalf("Expected 2 commands, got %d", len(config.Commands))
+	if len(config.Programs) != 2 {
+		t.Fatalf("Expected 2 Programs, got %d", len(config.Programs))
 	}
 
-	cmd1 := config.Commands[0]
-	if cmd1.Name != "localcommand" {
-		t.Errorf("Expected command name 'localcommand', got '%s'", cmd1.Name)
+	cmd1 := config.Programs[0]
+	if cmd1.Name != "localProgram" {
+		t.Errorf("Expected Program name 'localProgram', got '%s'", cmd1.Name)
 	}
 	if cmd1.Handler != "localhandler" {
-		t.Errorf("Expected command handler 'localhandler', got '%s'", cmd1.Handler)
+		t.Errorf("Expected Program handler 'localhandler', got '%s'", cmd1.Handler)
 	}
 
-	cmd2 := config.Commands[1]
-	if cmd2.Name != "homecommand" {
-		t.Errorf("Expected command name 'homecommand', got '%s'", cmd2.Name)
+	cmd2 := config.Programs[1]
+	if cmd2.Name != "homeProgram" {
+		t.Errorf("Expected Program name 'homeProgram', got '%s'", cmd2.Name)
 	}
 	if cmd2.Handler != "homehandler" {
-		t.Errorf("Expected command handler 'homehandler', got '%s'", cmd2.Handler)
+		t.Errorf("Expected Program handler 'homehandler', got '%s'", cmd2.Handler)
 	}
 }
