@@ -61,7 +61,7 @@ func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) (*ProgramConfig, er
 
 	clonedConfig = mergePrograms(clonedConfig, overrideConfig)
 
-	if err := mergo.Merge(&clonedConfig.Settings, &baseConfig.Settings, mergo.WithOverride); err != nil {
+	if err := mergo.Merge(&clonedConfig.Settings, &overrideConfig.Settings, mergo.WithOverride); err != nil {
 		return nil, err
 	}
 	return clonedConfig, nil
