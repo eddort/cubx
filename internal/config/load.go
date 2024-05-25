@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v3"
 )
 
@@ -54,11 +53,8 @@ func loadConfigFile(filePath string) (*ProgramConfig, error) {
 		return nil, fmt.Errorf("unable to decode file %s into struct: %w", filePath, err)
 	}
 
-	// Initialize the validator
-	validate := validator.New()
-
 	// Validate the configuration structure
-	if err := validate.Struct(config); err != nil {
+	if err := validateProgramConfig(&config); err != nil {
 		return nil, fmt.Errorf("validation error: %w", err)
 	}
 

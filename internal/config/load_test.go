@@ -115,7 +115,7 @@ programs:
   - name: localProgram
     aliases: ["localalias"]
     image: localimage
-    serializer: localhandler
+    serializer: string
     description: "Local Program description"
 `)
 	if err := os.WriteFile(localConfigPath, localConfigContent, 0644); err != nil {
@@ -134,7 +134,7 @@ programs:
   - name: homeProgram
     aliases: ["homealias"]
     image: homeimage
-    serializer: homehandler
+    serializer: string
     description: "Home Program description"
 `)
 	if err := os.WriteFile(homeConfigPath, homeConfigContent, 0644); err != nil {
@@ -180,15 +180,15 @@ programs:
 	if cmd1.Name != "localProgram" {
 		t.Errorf("Expected Program name 'localProgram', got '%s'", cmd1.Name)
 	}
-	if cmd1.Serializer != "localhandler" {
-		t.Errorf("Expected Program handler 'localhandler', got '%s'", cmd1.Serializer)
+	if cmd1.Serializer != "string" {
+		t.Errorf("Expected Program handler 'string', got '%s'", cmd1.Serializer)
 	}
 
 	cmd2 := config.Programs[1]
 	if cmd2.Name != "homeProgram" {
 		t.Errorf("Expected Program name 'homeProgram', got '%s'", cmd2.Name)
 	}
-	if cmd2.Serializer != "homehandler" {
-		t.Errorf("Expected Program handler 'homehandler', got '%s'", cmd2.Serializer)
+	if cmd2.Serializer != "string" {
+		t.Errorf("Expected Program handler 'string', got '%s'", cmd2.Serializer)
 	}
 }

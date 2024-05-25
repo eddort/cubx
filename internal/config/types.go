@@ -10,10 +10,13 @@ type Program struct {
 	// Aliases     []string `mapstructure:"aliases"`
 	Image       string `mapstructure:"image" validate:"required"`
 	Command     string `mapstructure:"command"`
-	Serializer  string `yaml:"serializer" default:"default"`
+	Serializer  string `yaml:"serializer" default:"default" validate:"serializer"`
 	Description string `mapstructure:"description"`
+	Category    string `mapstructure:"category"`
 }
 
 type ProgramConfig struct {
 	Programs []Program `mapstructure:"programs" validate:"required,dive"`
 }
+
+var validSerializers = []string{"default", "string", "testhandler"}
