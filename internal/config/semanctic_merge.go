@@ -8,12 +8,21 @@ import (
 
 // mergeSettings merges two Settings objects with the values from the override having priority
 // and concatenates IgnorePaths slices without duplicates.
-func mergeSettings(base, override Settings) Settings {
+func mergeSettings(base, override Settings) (Settings, error) {
 	// Perform deep cloning of the override settings
 	merged := Settings{}
-	data, _ := json.Marshal(override)
-	_ = json.Unmarshal(data, &merged)
-	_ = mergo.Merge(&merged, base, mergo.WithOverride)
+	data, err := json.Marshal(override)
+	if err != nil {
+		return base, err
+	}
+	err = json.Unmarshal(data, &merged)
+	if err != nil {
+		return base, err
+	}
+	err = mergo.Merge(&merged, base, mergo.WithOverride)
+	if err != nil {
+		return base, err
+	}
 
 	// Merge IgnorePaths without duplicates
 	ignorePathMap := make(map[string]bool)
@@ -26,23 +35,32 @@ func mergeSettings(base, override Settings) Settings {
 			ignorePathMap[path] = true
 		}
 	}
-	return merged
+	return merged, nil
 }
 
 // semanticMerge updates the given config by applying inherited settings
-func semanticMerge(config *ProgramConfig) {
+func semanticMerge(config *ProgramConfig) error {
 	// Merge global settings into each program's settings
 	for i, program := range config.Programs {
 		// Step 1: Merge global settings into program settings
-		program.Settings = mergeSettings(config.Settings, program.Settings)
+		mergedSettings, err := mergeSettings(config.Settings, program.Settings)
+		if err != nil {
+			return err
+		}
+		program.Settings = mergedSettings
 
 		// Merge program settings into each hook's settings
 		for j, hook := range program.Hooks {
 			// Step 2: Merge program settings into hook settings
-			hook.Settings = mergeSettings(program.Settings, hook.Settings)
+			mergedHookSettings, err := mergeSettings(program.Settings, hook.Settings)
+			if err != nil {
+				return err
+			}
+			hook.Settings = mergedHookSettings
 			program.Hooks[j] = hook
 		}
 
 		config.Programs[i] = program
 	}
+	return nil
 }

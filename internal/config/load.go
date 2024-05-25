@@ -65,7 +65,9 @@ func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) (*ProgramConfig, er
 		return nil, err
 	}
 
-	semanticMerge(clonedConfig)
+	if err := semanticMerge(clonedConfig); err != nil {
+		return nil, err
+	}
 
 	return clonedConfig, nil
 }
