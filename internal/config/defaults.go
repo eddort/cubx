@@ -9,7 +9,7 @@ var defaultPrograms = []Program{
 	{Name: "cast", Image: "ghcr.io/foundry-rs/foundry", Command: "cast", Description: "Send transactions or query blockchain state with Cast", Category: "Ethereum", Serializer: "string"},
 	{Name: "anvil", Image: "ghcr.io/foundry-rs/foundry", Command: "anvil", Description: "Run a local Ethereum node using Anvil", Category: "Ethereum", Serializer: "string"},
 	{Name: "python", Image: "python", Command: "python", Description: "Execute Python scripts", Category: "Python"},
-	{Name: "ruff", Image: "ghcr.io/astral-sh/ruff", Command: "ruff", Description: "Python linter and code formatter, written in Rust.", Category: "Python"},
+	{Name: "ruff", Image: "ghcr.io/astral-sh/ruff", Description: "Python linter and code formatter, written in Rust.", Category: "Python"},
 	{Name: "pip", Image: "python", Command: "pip", Description: "Manage Python packages with pip", Category: "Python"},
 	{Name: "ruby", Image: "ruby", Command: "ruby", Description: "Execute Ruby scripts", Category: "Ruby"},
 	{Name: "gem", Image: "ruby", Command: "gem", Description: "Manage Ruby gems", Category: "Ruby"},
