@@ -30,25 +30,40 @@ func HandleProgram(tag string, commandName string, args []string, programConfig 
 	return programConfig.Image, tag, arguments
 }
 
-func GetDockerImageAndCommand(commandArgs []string, flags config.CLI, configuration *config.ProgramConfig) (string, []string) {
+func isEmptySettings(s *config.Settings) bool {
+	return s.Net == "" && len(s.IgnorePaths) == 0
+}
+
+// getProgramSettings returns the program settings if they exist, otherwise returns the global settings
+func getProgramSettings(globalSettings, programSettings *config.Settings) *config.Settings {
+	// fmt.Println(programSettings)
+	if !isEmptySettings(programSettings) {
+		return programSettings
+	}
+	return globalSettings
+}
+
+func GetDockerImageAndCommand(commandArgs []string, flags config.CLI, configuration *config.ProgramConfig) (string, []string, *config.Settings) {
 	baseCommand := commandArgs[0]
 	additionalArgs := commandArgs[1:]
 
 	commandName, dockerTag := parseBaseCommand(baseCommand)
 
-	for _, program := range configuration.Programs {
-		if program.Name == commandName {
+	for _, programConfig := range configuration.Programs {
+		if programConfig.Name == commandName {
 
-			image, tag, args := HandleProgram(dockerTag, commandName, additionalArgs, program)
+			image, tag, args := HandleProgram(dockerTag, commandName, additionalArgs, programConfig)
+
+			settings := getProgramSettings(&configuration.Settings, &programConfig.Settings)
 
 			if flags.IsSelectMode {
 				tags, _ := registry.FetchTags(image)
 				tag = tui.RunInteractivePrompt(tags, "latest")
 			}
 
-			return image + ":" + tag, args
+			return image + ":" + tag, args, settings
 		}
 	}
 
-	return "ubuntu:" + dockerTag, commandArgs
+	return "ubuntu:" + dockerTag, commandArgs, &configuration.Settings
 }
