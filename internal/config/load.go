@@ -64,6 +64,9 @@ func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) (*ProgramConfig, er
 	if err := mergo.Merge(&clonedConfig.Settings, &overrideConfig.Settings, mergo.WithOverride); err != nil {
 		return nil, err
 	}
+
+	semanticMerge(clonedConfig)
+
 	return clonedConfig, nil
 }
 

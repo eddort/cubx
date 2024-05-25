@@ -232,8 +232,8 @@ func TestMergeConfigs_AddNewProgram(t *testing.T) {
 	if hook.Settings.Net != "none" {
 		t.Errorf("expected Hook Settings Net to be none, got %s", hook.Settings.Net)
 	}
-	if len(hook.Settings.IgnorePaths) != 1 || hook.Settings.IgnorePaths[0] != "/new/path" {
-		t.Errorf("expected Hook Settings IgnorePaths to be [/new/path], got %v", hook.Settings.IgnorePaths)
+	if len(hook.Settings.IgnorePaths) != 2 || hook.Settings.IgnorePaths[0] != "/override/path" || hook.Settings.IgnorePaths[1] != "/new/path" {
+		t.Errorf("expected Hook Settings IgnorePaths to be [/override/path /new/path], got %v", hook.Settings.IgnorePaths)
 	}
 	if mergedConfig.Settings.Net != "none" {
 		t.Errorf("Settings to be none, got %s", mergedConfig.Settings.Net)
