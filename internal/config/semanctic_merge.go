@@ -25,9 +25,16 @@ func mergeSettings(base, override Settings) (Settings, error) {
 	}
 
 	// Merge IgnorePaths without duplicates
+
 	ignorePathMap := make(map[string]bool)
-	for _, path := range base.IgnorePaths {
+	for _, path := range merged.IgnorePaths {
 		ignorePathMap[path] = true
+	}
+	for _, path := range base.IgnorePaths {
+		if !ignorePathMap[path] {
+			merged.IgnorePaths = append(merged.IgnorePaths, path)
+			ignorePathMap[path] = true
+		}
 	}
 	for _, path := range override.IgnorePaths {
 		if !ignorePathMap[path] {
