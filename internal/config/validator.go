@@ -16,6 +16,15 @@ func validateSerializer(fl validator.FieldLevel) bool {
 	return false
 }
 
+// setDefaults sets default values for fields that are not set.
+func setDefaults(config *ProgramConfig) {
+	for i := range config.Programs {
+		if config.Programs[i].Serializer == "" {
+			config.Programs[i].Serializer = "default"
+		}
+	}
+}
+
 func getValidator() *validator.Validate {
 	validate := validator.New()
 	validate.RegisterValidation("serializer", validateSerializer)
@@ -24,6 +33,9 @@ func getValidator() *validator.Validate {
 }
 
 func validateProgramConfig(config *ProgramConfig) error {
+	// Set default values
+	setDefaults(config)
+
 	validate := getValidator()
 
 	err := validate.Struct(config)
