@@ -9,7 +9,7 @@ type Program struct {
 	Name        string   `mapstructure:"name" validate:"required"`
 	Aliases     []string `mapstructure:"aliases"`
 	Image       string   `mapstructure:"image" validate:"required"`
-	Handler     string   `mapstructure:"handler"`
+	Serializer  string   `yaml:"serializer" default:"default"`
 	Description string   `mapstructure:"description"`
 }
 

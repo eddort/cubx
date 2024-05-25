@@ -71,13 +71,6 @@ func LoadConfig() (*ProgramConfig, []string, error) {
 	// Merge the configurations
 	finalConfig := mergeConfigs(&currentConfig, &homeConfig)
 
-	// Set default value for Handler if not specified
-	for i, cmd := range finalConfig.Programs {
-		if cmd.Handler == "" {
-			finalConfig.Programs[i].Handler = "default"
-		}
-	}
-
 	// Initialize the validator
 	validate := validator.New()
 

@@ -31,7 +31,7 @@ programs:
   - name: testProgram
     aliases: ["testalias"]
     image: testimage
-    handler: testhandler
+    serializer: testhandler
     description: "Test Program description"
 `)
 	if err := os.WriteFile(validConfigPath, validConfigContent, 0644); err != nil {
@@ -63,8 +63,8 @@ programs:
 	if cmd.Name != "testProgram" {
 		t.Errorf("Expected Program name 'testProgram', got '%s'", cmd.Name)
 	}
-	if cmd.Handler != "testhandler" {
-		t.Errorf("Expected Program handler 'testhandler', got '%s'", cmd.Handler)
+	if cmd.Serializer != "testhandler" {
+		t.Errorf("Expected Program handler 'testhandler', got '%s'", cmd.Serializer)
 	}
 }
 
@@ -82,7 +82,7 @@ func TestLoadInvalidConfig(t *testing.T) {
 programs:
   - aliases: ["testalias"]
     image: testimage
-    handler: testhandler
+    serializer: testhandler
     description: "Test Program description without name"
 `)
 	if err := os.WriteFile(invalidConfigPath, invalidConfigContent, 0644); err != nil {
@@ -115,7 +115,7 @@ programs:
   - name: localProgram
     aliases: ["localalias"]
     image: localimage
-    handler: localhandler
+    serializer: localhandler
     description: "Local Program description"
 `)
 	if err := os.WriteFile(localConfigPath, localConfigContent, 0644); err != nil {
@@ -134,7 +134,7 @@ Programs:
   - name: homeProgram
     aliases: ["homealias"]
     image: homeimage
-    handler: homehandler
+    serializer: homehandler
     description: "Home Program description"
 `)
 	if err := os.WriteFile(homeConfigPath, homeConfigContent, 0644); err != nil {
@@ -180,15 +180,15 @@ Programs:
 	if cmd1.Name != "localProgram" {
 		t.Errorf("Expected Program name 'localProgram', got '%s'", cmd1.Name)
 	}
-	if cmd1.Handler != "localhandler" {
-		t.Errorf("Expected Program handler 'localhandler', got '%s'", cmd1.Handler)
+	if cmd1.Serializer != "localhandler" {
+		t.Errorf("Expected Program handler 'localhandler', got '%s'", cmd1.Serializer)
 	}
 
 	cmd2 := config.Programs[1]
 	if cmd2.Name != "homeProgram" {
 		t.Errorf("Expected Program name 'homeProgram', got '%s'", cmd2.Name)
 	}
-	if cmd2.Handler != "homehandler" {
-		t.Errorf("Expected Program handler 'homehandler', got '%s'", cmd2.Handler)
+	if cmd2.Serializer != "homehandler" {
+		t.Errorf("Expected Program handler 'homehandler', got '%s'", cmd2.Serializer)
 	}
 }
