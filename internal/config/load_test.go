@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -42,7 +43,7 @@ programs:
 	os.Setenv("HOME", tempDir)
 	defer os.Setenv("HOME", homeDir)
 
-	config, loadedConfigs, err := LoadConfig()
+	config, loadedConfigs, err := LoadConfig(false)
 	if err != nil {
 		t.Fatalf("Failed to load config: %v", err)
 	}
@@ -93,9 +94,23 @@ programs:
 	os.Setenv("HOME", tempDir)
 	defer os.Setenv("HOME", homeDir)
 
-	_, _, err := LoadConfig()
+	_, _, err := LoadConfig(false)
 	if err == nil {
 		t.Fatal("Expected error for invalid config, got nil")
+	}
+}
+
+func TestLoadDefaultConfig(t *testing.T) {
+	config, _, err := LoadConfig(true)
+
+	equal := reflect.DeepEqual(config, getProgramConfig())
+
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	if equal != true {
+		t.Fatal("Error while loading default config")
 	}
 }
 
@@ -158,7 +173,7 @@ programs:
 		t.Fatalf("Failed to change directory: %v", err)
 	}
 
-	config, loadedConfigs, err := LoadConfig()
+	config, loadedConfigs, err := LoadConfig(false)
 	if err != nil {
 		t.Fatalf("Failed to load config: %v", err)
 	}

@@ -61,7 +61,7 @@ func loadConfigFile(filePath string) (*ProgramConfig, error) {
 	return &config, nil
 }
 
-func LoadConfig() (*ProgramConfig, []string, error) {
+func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	configFileName := "config.yaml"
 	var loadedConfigs []string
 
@@ -71,6 +71,11 @@ func LoadConfig() (*ProgramConfig, []string, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
+	if withDefaults {
+		currentConfig = mergeConfigs(currentConfig, getProgramConfig())
+	}
+
 	if _, err := os.Stat(currentDirConfigPath); err == nil {
 		loadedConfigs = append(loadedConfigs, currentDirConfigPath)
 	}
