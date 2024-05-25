@@ -45,6 +45,7 @@ Now, you can use the command:
 ```bash
 ./cubx
 ```
+> [!NOTE]
 > You can then specify a `PATH` variable in your environment to make `cubx` available globally
 
 This will allow you to start using the `cubx` tool.
