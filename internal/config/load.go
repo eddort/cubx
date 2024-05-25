@@ -1,14 +1,28 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 )
 
-func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) *ProgramConfig {
+func cloneProgramConfig(config *ProgramConfig) (*ProgramConfig, error) {
+	var clonedConfig ProgramConfig
+	data, err := json.Marshal(config)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(data, &clonedConfig); err != nil {
+		return nil, err
+	}
+	return &clonedConfig, nil
+}
+
+func mergePrograms(baseConfig, overrideConfig *ProgramConfig) *ProgramConfig {
 	programSet := make(map[string]bool)
 	var mergedPrograms []Program
 
@@ -37,6 +51,20 @@ func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) *ProgramConfig {
 	}
 
 	return &ProgramConfig{Programs: mergedPrograms}
+}
+
+func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) (*ProgramConfig, error) {
+	clonedConfig, err := cloneProgramConfig(baseConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	clonedConfig = mergePrograms(clonedConfig, overrideConfig)
+
+	if err := mergo.Merge(&clonedConfig.Settings, &baseConfig.Settings, mergo.WithOverride); err != nil {
+		return nil, err
+	}
+	return clonedConfig, nil
 }
 
 func loadConfigFile(filePath string) (*ProgramConfig, error) {
@@ -73,7 +101,10 @@ func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	}
 
 	if withDefaults {
-		currentConfig = mergeConfigs(currentConfig, getProgramConfig())
+		currentConfig, err = mergeConfigs(currentConfig, getProgramConfig())
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	if _, err := os.Stat(currentDirConfigPath); err == nil {
@@ -95,7 +126,9 @@ func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	}
 
 	// Merge the configurations
-	finalConfig := mergeConfigs(currentConfig, homeConfig)
-
+	finalConfig, err := mergeConfigs(currentConfig, homeConfig)
+	if err != nil {
+		return nil, nil, err
+	}
 	return finalConfig, loadedConfigs, nil
 }
