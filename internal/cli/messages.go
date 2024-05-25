@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"cubx/internal/command"
+	"cubx/internal/config"
 	"flag"
 	"fmt"
 	"sort"
@@ -20,7 +20,7 @@ const (
 	colorWhite  = "\033[37m"
 )
 
-func getHelpMessage() string {
+func getHelpMessage(configuration config.ProgramConfig) string {
 	header := "cubx - Isolated App Launch Made Easy"
 	description := "A program to launch applications in isolated Docker containers"
 	flags := []struct {
@@ -48,8 +48,8 @@ func getHelpMessage() string {
 
 	sb.WriteString(fmt.Sprintf("%sCommands%s\n", colorPurple, colorReset))
 
-	categories := make(map[string][]command.Command)
-	for _, cmd := range command.CommandHandlers {
+	categories := make(map[string][]config.Program)
+	for _, cmd := range configuration.Programs {
 		categories[cmd.Category] = append(categories[cmd.Category], cmd)
 	}
 
