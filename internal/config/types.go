@@ -1,32 +1,32 @@
 package config
 
 type CLI struct {
-	IsSelectMode bool
-	FileIgnores  []string
+	IsSelectMode bool     `yaml:"is_select_mode"`
+	FileIgnores  []string `yaml:"file_ignores"`
 }
 
 type Hook struct {
-	Command  string   `mapstructure:"command" validate:"required"`
-	Settings Settings `mapstructure:"settings"`
+	Command  string   `yaml:"command" validate:"required"`
+	Settings Settings `yaml:"settings"`
 }
 
 type Program struct {
-	Name        string   `mapstructure:"name" validate:"required"`
-	Image       string   `mapstructure:"image" validate:"required"`
-	Command     string   `mapstructure:"command"`
-	Serializer  string   `mapstructure:"serializer" validate:"oneof='' default string testhandler"`
-	Description string   `mapstructure:"description"`
-	Category    string   `mapstructure:"category"`
-	Hooks       []Hook   `mapstructure:"hooks" validate:"dive"`
-	Settings    Settings `mapstructure:"settings"`
+	Name        string   `yaml:"name" validate:"required"`
+	Image       string   `yaml:"image" validate:"required"`
+	Command     string   `yaml:"command"`
+	Serializer  string   `yaml:"serializer" validate:"oneof='' default string testhandler"`
+	Description string   `yaml:"description"`
+	Category    string   `yaml:"category"`
+	Hooks       []Hook   `yaml:"hooks" validate:"dive"`
+	Settings    Settings `yaml:"settings"`
 }
 
 type Settings struct {
-	Net         string   `mapstructure:"net" validate:"oneof='' none host bridge"`
-	IgnorePaths []string `mapstructure:"ignore_paths"`
+	Net         string   `yaml:"net" validate:"oneof='' none host bridge"`
+	IgnorePaths []string `yaml:"ignore_paths"`
 }
 
 type ProgramConfig struct {
-	Programs []Program `mapstructure:"programs" validate:"required,dive"`
-	Settings Settings  `mapstructure:"settings"`
+	Programs []Program `yaml:"programs" validate:"required,dive"`
+	Settings Settings  `yaml:"settings"`
 }
