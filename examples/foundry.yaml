@@ -1,0 +1,34 @@
+programs:
+  - name: cast
+    image: ghcr.io/foundry-rs/foundry
+    command: cast
+    serializer: string
+    description: Send transactions or query blockchain state with Cast
+    default_tag: ""
+    category: Ethereum
+    hooks: []
+    settings:
+      net: ""
+      ignore_paths: []
+  - name: forge
+    image: ghcr.io/foundry-rs/foundry
+    command: forge
+    serializer: string
+    description: Interact with smart contracts via Forge
+    default_tag: ""
+    category: Ethereum
+    hooks: []
+    settings:
+      net: ""
+      ignore_paths: []
+  - name: anvil
+    image: ghcr.io/foundry-rs/foundry
+    command: anvil
+    serializer: string
+    description: Run a local Ethereum node using Anvil
+    default_tag: ""
+    category: Ethereum
+    hooks: []
+    settings:
+        net: ""
+        ignore_paths: []
