@@ -186,10 +186,28 @@ Output
 
 As a result we get empty output, because inside the container this file will be empty when the program is called.
 
-```sh
-cubx npm install
-```
+## Configuration
+
+In this section we will understand how to configure commands and how to create our own, based on any docker images.
+
+### What is configuration in the context of cubx
+
+All programs that can be run with cubx are described in a configuration that defines how to map commands to the docker container, docker image, command, description, and container settings at startup.
+
+You can learn any built-in command by typing:
 
 ```sh
-cubx cast call 0x6b175474e89094c44da98b954eedeac495271d0f 'totalSupply()(uint256)' --rpc-url https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf
+cubx --show-config node                                 
+---
+name: node
+image: node
+command: node
+serializer: ""
+description: Execute Node.js programs
+default_tag: ""
+category: Node.js
+hooks: []
+settings:
+    net: ""
+    ignore_paths: []
 ```
