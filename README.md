@@ -215,7 +215,12 @@ All programs that can be run with Cubx are described in a configuration that def
 To view the configuration of any built-in command:
 
 ```sh
-cubx --show-config node                                 
+cubx --show-config node
+```
+
+Output:
+
+```sh
 ---
 name: node
 image: node
@@ -229,4 +234,63 @@ settings:
     net: ""
     ignore_paths: []
 ```
+
+### Creating Custom Commands
+
+Cubx allows you to create your own custom commands similar to the built-in commands. This flexibility lets you extend the functionality of Cubx to suit your specific needs.
+
+
+
+To create your own commands, follow these steps:
+
+1. Create a folder named `.cubx` in your home directory (if it doesn't already exist).
+2. Inside this folder, create a file named `config.yaml`.
+3. Add your configuration to `config.yaml` following the example format below.
+
+#### Example Configuration
+
+Here is an example configuration for a custom command:
+
+```yaml
+programs:
+  - name: cast
+    image: ghcr.io/foundry-rs/foundry
+    command: cast
+    serializer: string
+    description: Send transactions or query blockchain state with Cast
+    default_tag: ""
+    category: Ethereum
+    hooks: []
+    settings:
+      net: ""
+      ignore_paths: []
+```
+
+This configuration defines a new command `cast` that uses the `foundry` image from the GitHub Container Registry. The command can be used to send transactions or query blockchain state with Cast.
+
+### Using Custom Commands
+
+After adding your custom command to `config.yaml`, Cubx will read the configuration upon the next startup and extend the available commands with your new command. You can verify this by running:
+
+```sh
+cubx -h
+```
+
+You should see your custom command listed among the available commands.
+
+### Verifying Custom Command
+
+To check that everything is working correctly, you can execute a command using your new configuration. For example, to use the `cast` command to call a method on a smart contract, run:
+
+```sh
+cubx cast call 0x6b175474e89094c44da98b954eedeac495271d0f 'totalSupply()(uint256)' --rpc-url https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf
+```
+
+This command calls the `totalSupply` method on the DAI contract to query the total supply of the token, using the specified RPC URL.
+
+### More Examples
+
+For more examples, you can visit the [Cubx Examples Directory](https://github.com/eddort/cubx/tree/main/examples).
+
+By following these steps, you can easily extend Cubx with custom commands to enhance its functionality and adapt it to your specific use cases.
 
