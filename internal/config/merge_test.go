@@ -178,7 +178,7 @@ func TestMergeConfigs_AddNewProgram(t *testing.T) {
 			},
 		},
 		Settings: Settings{
-			Net:         "none",
+			Net:         "",
 			IgnorePaths: []string{"/override/path"},
 		},
 	}
@@ -186,6 +186,10 @@ func TestMergeConfigs_AddNewProgram(t *testing.T) {
 	mergedConfig, err := mergeConfigs(baseConfig, overrideConfig)
 	if err != nil {
 		t.Fatalf("mergeConfigs failed: %v", err)
+	}
+
+	if mergedConfig.Settings.Net != "host" {
+		t.Errorf("expected Hook Settings Net to be host, got %s", mergedConfig.Settings.Net)
 	}
 
 	// Initialize the validator
@@ -229,14 +233,14 @@ func TestMergeConfigs_AddNewProgram(t *testing.T) {
 	if hook.Command != "newHookCommand" {
 		t.Errorf("expected Hook Command to be newHookCommand, got %s", hook.Command)
 	}
-	if hook.Settings.Net != "none" {
-		t.Errorf("expected Hook Settings Net to be none, got %s", hook.Settings.Net)
+	if hook.Settings.Net != "host" {
+		t.Errorf("expected Hook Settings Net to be host, got %s", hook.Settings.Net)
 	}
 	if len(hook.Settings.IgnorePaths) != 2 || hook.Settings.IgnorePaths[0] != "/override/path" || hook.Settings.IgnorePaths[1] != "/new/path" {
 		t.Errorf("expected Hook Settings IgnorePaths to be [/override/path /new/path], got %v", hook.Settings.IgnorePaths)
 	}
-	if mergedConfig.Settings.Net != "none" {
-		t.Errorf("Settings to be none, got %s", mergedConfig.Settings.Net)
+	if mergedConfig.Settings.Net != "host" {
+		t.Errorf("Settings to be host, got %s", mergedConfig.Settings.Net)
 	}
 	if len(mergedConfig.Settings.IgnorePaths) != 1 || mergedConfig.Settings.IgnorePaths[0] != "/override/path" {
 		t.Errorf("expected Settings IgnorePaths to be [/override/path], got %v", mergedConfig.Settings.IgnorePaths)

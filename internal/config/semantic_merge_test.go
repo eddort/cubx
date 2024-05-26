@@ -49,6 +49,7 @@ func TestSemanticMerge(t *testing.T) {
 	// Expected settings after merge
 	expectedProgramSettings := Settings{Net: "bridge", IgnorePaths: []string{"/program/path", "/global/path"}}
 	expectedHookSettings := Settings{Net: "bridge", IgnorePaths: []string{"/hook/path", "/program/path", "/global/path"}}
+	expectedGlobalSettings := Settings{Net: "bridge", IgnorePaths: []string{"/global/path"}}
 
 	// Sort IgnorePaths for comparison
 	configProgramSettings := config.Programs[0].Settings
@@ -59,6 +60,11 @@ func TestSemanticMerge(t *testing.T) {
 	configHookSettings.IgnorePaths = sortStrings(configHookSettings.IgnorePaths)
 	expectedHookSettings.IgnorePaths = sortStrings(expectedHookSettings.IgnorePaths)
 
+	// Sort IgnorePaths for comparison
+	configGlobalSettings := config.Settings
+	configGlobalSettings.IgnorePaths = sortStrings(configGlobalSettings.IgnorePaths)
+	expectedGlobalSettings.IgnorePaths = sortStrings(expectedGlobalSettings.IgnorePaths)
+
 	// Check program settings after merge
 	if !reflect.DeepEqual(configProgramSettings, expectedProgramSettings) {
 		t.Errorf("expected program settings to be %+v, but got %+v", expectedProgramSettings, configProgramSettings)
@@ -67,5 +73,10 @@ func TestSemanticMerge(t *testing.T) {
 	// Check hook settings after merge
 	if !reflect.DeepEqual(configHookSettings, expectedHookSettings) {
 		t.Errorf("expected hook settings to be %+v, but got %+v", expectedHookSettings, configHookSettings)
+	}
+
+	// Check global settings after merge
+	if !reflect.DeepEqual(configGlobalSettings, expectedGlobalSettings) {
+		t.Errorf("expected global settings to be %+v, but got %+v", expectedGlobalSettings, configGlobalSettings)
 	}
 }
