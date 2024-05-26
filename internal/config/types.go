@@ -3,6 +3,7 @@ package config
 type CLI struct {
 	IsSelectMode bool     `yaml:"is_select_mode"`
 	FileIgnores  []string `yaml:"file_ignores"`
+	ShowConfig   string   `yaml:"show_config"`
 }
 
 type Hook struct {
