@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
@@ -23,32 +24,24 @@ func cloneProgramConfig(config *ProgramConfig) (*ProgramConfig, error) {
 }
 
 func mergePrograms(baseConfig, overrideConfig *ProgramConfig) *[]Program {
-	programSet := make(map[string]bool)
+	var allPrograms []Program
+	programMap := make(map[string]Program)
+
+	allPrograms = append(allPrograms, baseConfig.Programs...)
+	allPrograms = append(allPrograms, overrideConfig.Programs...)
+
+	for _, program := range allPrograms {
+		programMap[program.Name] = program
+	}
+
 	var mergedPrograms []Program
-
-	// Add programs from baseConfig
-	for _, program := range baseConfig.Programs {
-		if !programSet[program.Name] {
-			mergedPrograms = append(mergedPrograms, program)
-			programSet[program.Name] = true
-		}
+	for _, program := range programMap {
+		mergedPrograms = append(mergedPrograms, program)
 	}
 
-	// Add/override programs from overrideConfig
-	for _, program := range overrideConfig.Programs {
-		if !programSet[program.Name] {
-			mergedPrograms = append(mergedPrograms, program)
-			programSet[program.Name] = true
-		} else {
-			// Replace existing program with the one from overrideConfig
-			for i := range mergedPrograms {
-				if mergedPrograms[i].Name == program.Name {
-					mergedPrograms[i] = program
-					break
-				}
-			}
-		}
-	}
+	sort.Slice(mergedPrograms, func(i, j int) bool {
+		return mergedPrograms[i].Name < mergedPrograms[j].Name
+	})
 
 	return &mergedPrograms
 }
@@ -106,7 +99,7 @@ func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	}
 
 	if withDefaults {
-		currentConfig, err = mergeConfigs(currentConfig, getProgramConfig())
+		currentConfig, err = mergeConfigs(getProgramConfig(), currentConfig)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -131,7 +124,7 @@ func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	}
 
 	// Merge the configurations
-	finalConfig, err := mergeConfigs(currentConfig, homeConfig)
+	finalConfig, err := mergeConfigs(homeConfig, currentConfig)
 	if err != nil {
 		return nil, nil, err
 	}

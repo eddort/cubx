@@ -22,7 +22,7 @@ func TestSemanticMerge(t *testing.T) {
 				Name:     "program1",
 				Image:    "image1",
 				Command:  "command1",
-				Settings: Settings{Net: "host", IgnorePaths: []string{"/program/path"}},
+				Settings: Settings{Net: "bridge", IgnorePaths: []string{"/program/path"}},
 				Hooks: []Hook{
 					{
 						Command:  "hook1",

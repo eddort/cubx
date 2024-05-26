@@ -166,13 +166,13 @@ func TestMergeConfigs_AddNewProgram(t *testing.T) {
 					{
 						Command: "newHookCommand",
 						Settings: Settings{
-							Net:         "none",
+							Net:         "",
 							IgnorePaths: []string{"/new/path"},
 						},
 					},
 				},
 				Settings: Settings{
-					Net:         "none",
+					Net:         "",
 					IgnorePaths: []string{"/new/path"},
 				},
 			},
@@ -236,7 +236,7 @@ func TestMergeConfigs_AddNewProgram(t *testing.T) {
 	if hook.Settings.Net != "host" {
 		t.Errorf("expected Hook Settings Net to be host, got %s", hook.Settings.Net)
 	}
-	if len(hook.Settings.IgnorePaths) != 2 || hook.Settings.IgnorePaths[0] != "/override/path" || hook.Settings.IgnorePaths[1] != "/new/path" {
+	if len(hook.Settings.IgnorePaths) != 2 || hook.Settings.IgnorePaths[1] != "/override/path" || hook.Settings.IgnorePaths[0] != "/new/path" {
 		t.Errorf("expected Hook Settings IgnorePaths to be [/override/path /new/path], got %v", hook.Settings.IgnorePaths)
 	}
 	if mergedConfig.Settings.Net != "host" {

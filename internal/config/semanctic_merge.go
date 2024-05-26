@@ -46,7 +46,7 @@ func semanticMerge(config *ProgramConfig) error {
 	// Merge global settings into each program's settings
 	for i, program := range config.Programs {
 		// Step 1: Merge global settings into program settings
-		mergedSettings, err := mergeSettings(program.Settings, config.Settings)
+		mergedSettings, err := mergeSettings(config.Settings, program.Settings)
 		if err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func semanticMerge(config *ProgramConfig) error {
 		// Merge program settings into each hook's settings
 		for j, hook := range program.Hooks {
 			// Step 2: Merge program settings into hook settings
-			mergedHookSettings, err := mergeSettings(hook.Settings, program.Settings)
+			mergedHookSettings, err := mergeSettings(program.Settings, hook.Settings)
 			if err != nil {
 				return err
 			}

@@ -36,10 +36,31 @@ func HandleProgram(tag string, commandName string, args []string, programConfig 
 }
 
 // getProgramSettings returns the program settings if they exist, otherwise returns the global settings
-func getProgramSettings(globalSettings, programSettings *config.Settings) *config.Settings {
+func getProgramSettings(globalSettings, programSettings *config.Settings, hooks *[]config.Hook, additionalArgs []string) *config.Settings {
+	for _, hook := range *hooks {
+		escArgs, err := shlex.Split(strings.Join(additionalArgs, " "))
+		if err != nil {
+			log.Fatalf("Error parsing hook command: %v", err)
+		}
+
+		hookParts, err := shlex.Split(hook.Command)
+		if err != nil {
+			log.Fatalf("Error parsing hook command: %v", err)
+		}
+
+		argsString := strings.Join(escArgs, " ")
+		hookString := strings.Join(hookParts, " ")
+
+		if strings.HasPrefix(argsString, hookString) {
+
+			return &hook.Settings
+		}
+	}
+
 	if !programSettings.IsEmpty() {
 		return programSettings
 	}
+
 	return globalSettings
 }
 
@@ -70,8 +91,7 @@ func GetDockerMeta(commandArgs []string, flags config.CLI, configuration *config
 
 			image, tag, args := HandleProgram(dockerTag, commandName, additionalArgs, programConfig)
 
-			settings := getProgramSettings(&configuration.Settings, &programConfig.Settings)
-
+			settings := getProgramSettings(&configuration.Settings, &programConfig.Settings, &programConfig.Hooks, additionalArgs)
 			if flags.IsSelectMode {
 				tags, _ := registry.FetchTags(image)
 				tag = tui.RunInteractivePrompt(tags, "latest")
