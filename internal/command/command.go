@@ -27,6 +27,10 @@ func HandleProgram(tag string, commandName string, args []string, programConfig 
 		arguments = []string{strings.Join(escArgs, " ")}
 	}
 
+	if programConfig.DefaultTag != "" {
+		tag = programConfig.DefaultTag
+	}
+
 	return programConfig.Image, tag, arguments
 }
 
