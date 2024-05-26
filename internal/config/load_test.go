@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -103,6 +104,11 @@ programs:
 func TestLoadDefaultConfig(t *testing.T) {
 	config, _, err := LoadConfig(true)
 
+	newConf := getProgramConfig()
+	sort.Slice(newConf.Programs, func(i, j int) bool {
+		return newConf.Programs[i].Name < newConf.Programs[j].Name
+	})
+
 	equal := reflect.DeepEqual(config, getProgramConfig())
 
 	if err != nil {
@@ -191,7 +197,7 @@ programs:
 		t.Fatalf("Expected 2 Programs, got %d", len(config.Programs))
 	}
 
-	cmd1 := config.Programs[0]
+	cmd1 := config.Programs[1]
 	if cmd1.Name != "localProgram" {
 		t.Errorf("Expected Program name 'localProgram', got '%s'", cmd1.Name)
 	}
@@ -199,7 +205,7 @@ programs:
 		t.Errorf("Expected Program handler 'string', got '%s'", cmd1.Serializer)
 	}
 
-	cmd2 := config.Programs[1]
+	cmd2 := config.Programs[0]
 	if cmd2.Name != "homeProgram" {
 		t.Errorf("Expected Program name 'homeProgram', got '%s'", cmd2.Name)
 	}

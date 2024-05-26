@@ -15,7 +15,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func RunImageAndCommand(dockerImage string, command []string, config config.CLI) {
+func RunImageAndCommand(dockerImage string, command []string, config config.CLI, settings *config.Settings) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error creating Docker client:", err)
@@ -33,7 +33,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI)
 
 	// hostContainerId := EnsureHostContainer(ctx, cli)
 
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
+	dockerContainerConfig := &container.Config{
 		Image:        dockerImage,
 		Cmd:          command,
 		Tty:          true,
@@ -45,13 +45,21 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI)
 		StdinOnce:    false,
 		// ExposedPorts: exposedPorts,
 		// Labels: ["cubx-container"]
-	}, &container.HostConfig{
+	}
+
+	dockerHostConfig := &container.HostConfig{
 		AutoRemove: true,
 		// NetworkMode:  container.NetworkMode("container:" + hostContainerId),
 		NetworkMode: "host",
 		// PortBindings: portMappings,
-		Mounts: generateMounts(config.FileIgnores),
-	}, nil, nil, "")
+		Mounts: generateMounts(append(config.FileIgnores, settings.IgnorePaths...)),
+	}
+
+	if settings.Net != "" {
+		dockerHostConfig.NetworkMode = container.NetworkMode(settings.Net)
+	}
+
+	resp, err := cli.ContainerCreate(ctx, dockerContainerConfig, dockerHostConfig, nil, nil, "")
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error creating a Docker container:", err)
@@ -133,6 +141,7 @@ func createTempDir() string {
 }
 
 func generateMounts(ignores []string) []mount.Mount {
+	fmt.Println(ignores)
 	mounts := []mount.Mount{
 		{
 			Type:   mount.TypeBind,

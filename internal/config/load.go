@@ -1,42 +1,68 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 
+	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 )
 
-func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) *ProgramConfig {
-	programSet := make(map[string]bool)
+func cloneProgramConfig(config *ProgramConfig) (*ProgramConfig, error) {
+	var clonedConfig ProgramConfig
+	data, err := json.Marshal(config)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(data, &clonedConfig); err != nil {
+		return nil, err
+	}
+	return &clonedConfig, nil
+}
+
+func mergePrograms(baseConfig, overrideConfig *ProgramConfig) *[]Program {
+	var allPrograms []Program
+	programMap := make(map[string]Program)
+
+	allPrograms = append(allPrograms, baseConfig.Programs...)
+	allPrograms = append(allPrograms, overrideConfig.Programs...)
+
+	for _, program := range allPrograms {
+		programMap[program.Name] = program
+	}
+
 	var mergedPrograms []Program
-
-	// Add programs from baseConfig
-	for _, program := range baseConfig.Programs {
-		if !programSet[program.Name] {
-			mergedPrograms = append(mergedPrograms, program)
-			programSet[program.Name] = true
-		}
+	for _, program := range programMap {
+		mergedPrograms = append(mergedPrograms, program)
 	}
 
-	// Add/override programs from overrideConfig
-	for _, program := range overrideConfig.Programs {
-		if !programSet[program.Name] {
-			mergedPrograms = append(mergedPrograms, program)
-			programSet[program.Name] = true
-		} else {
-			// Replace existing program with the one from overrideConfig
-			for i := range mergedPrograms {
-				if mergedPrograms[i].Name == program.Name {
-					mergedPrograms[i] = program
-					break
-				}
-			}
-		}
+	sort.Slice(mergedPrograms, func(i, j int) bool {
+		return mergedPrograms[i].Name < mergedPrograms[j].Name
+	})
+
+	return &mergedPrograms
+}
+
+func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) (*ProgramConfig, error) {
+	clonedConfig, err := cloneProgramConfig(baseConfig)
+	if err != nil {
+		return nil, err
 	}
 
-	return &ProgramConfig{Programs: mergedPrograms}
+	clonedConfig.Programs = *mergePrograms(clonedConfig, overrideConfig)
+
+	if err := mergo.Merge(&clonedConfig.Settings, &overrideConfig.Settings, mergo.WithOverride); err != nil {
+		return nil, err
+	}
+
+	if err := semanticMerge(clonedConfig); err != nil {
+		return nil, err
+	}
+
+	return clonedConfig, nil
 }
 
 func loadConfigFile(filePath string) (*ProgramConfig, error) {
@@ -73,7 +99,10 @@ func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	}
 
 	if withDefaults {
-		currentConfig = mergeConfigs(currentConfig, getProgramConfig())
+		currentConfig, err = mergeConfigs(getProgramConfig(), currentConfig)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	if _, err := os.Stat(currentDirConfigPath); err == nil {
@@ -95,7 +124,9 @@ func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	}
 
 	// Merge the configurations
-	finalConfig := mergeConfigs(currentConfig, homeConfig)
-
+	finalConfig, err := mergeConfigs(homeConfig, currentConfig)
+	if err != nil {
+		return nil, nil, err
+	}
 	return finalConfig, loadedConfigs, nil
 }

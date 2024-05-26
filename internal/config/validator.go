@@ -6,16 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func validateSerializer(fl validator.FieldLevel) bool {
-	value := fl.Field().String()
-	for _, v := range validSerializers {
-		if value == v {
-			return true
-		}
-	}
-	return false
-}
-
 // setDefaults sets default values for fields that are not set.
 func setDefaults(config *ProgramConfig) {
 	for i := range config.Programs {
@@ -27,7 +17,6 @@ func setDefaults(config *ProgramConfig) {
 
 func getValidator() *validator.Validate {
 	validate := validator.New()
-	validate.RegisterValidation("serializer", validateSerializer)
 
 	return validate
 }
