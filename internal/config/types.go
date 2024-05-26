@@ -9,7 +9,7 @@ type CLI struct {
 }
 
 type Hook struct {
-	Command  string   `yaml:"command" validate:"required"`
+	Command  string   `yaml:"command"`
 	Settings Settings `yaml:"settings"`
 }
 
