@@ -22,7 +22,7 @@ func cloneProgramConfig(config *ProgramConfig) (*ProgramConfig, error) {
 	return &clonedConfig, nil
 }
 
-func mergePrograms(baseConfig, overrideConfig *ProgramConfig) *ProgramConfig {
+func mergePrograms(baseConfig, overrideConfig *ProgramConfig) *[]Program {
 	programSet := make(map[string]bool)
 	var mergedPrograms []Program
 
@@ -50,7 +50,7 @@ func mergePrograms(baseConfig, overrideConfig *ProgramConfig) *ProgramConfig {
 		}
 	}
 
-	return &ProgramConfig{Programs: mergedPrograms}
+	return &mergedPrograms
 }
 
 func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) (*ProgramConfig, error) {
@@ -59,7 +59,7 @@ func mergeConfigs(baseConfig, overrideConfig *ProgramConfig) (*ProgramConfig, er
 		return nil, err
 	}
 
-	clonedConfig = mergePrograms(clonedConfig, overrideConfig)
+	clonedConfig.Programs = *mergePrograms(clonedConfig, overrideConfig)
 
 	if err := mergo.Merge(&clonedConfig.Settings, &overrideConfig.Settings, mergo.WithOverride); err != nil {
 		return nil, err

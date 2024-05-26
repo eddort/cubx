@@ -55,7 +55,6 @@ func GetPlatforms(imageName string) *PlatformMap {
 	var platforms = NewPlatformMap()
 
 	for _, manifest := range *manifests {
-		// fmt.Printf("OS: %s, Architecture: %s, OS Version: %s\n", manifest.Platform.OS, manifest.Platform.Architecture, manifest.Platform.OSVersion)
 		os := manifest.Platform.OS
 		arch := manifest.Platform.Architecture
 		platforms.Add(os, arch)
