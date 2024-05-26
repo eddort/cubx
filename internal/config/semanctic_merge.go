@@ -9,9 +9,9 @@ import (
 // mergeSettings merges two Settings objects with the values from the override having priority
 // and concatenates IgnorePaths slices without duplicates.
 func mergeSettings(base, override Settings) (Settings, error) {
-	// Perform deep cloning of the override settings
+	// Perform deep cloning of the base settings
 	merged := Settings{}
-	data, err := json.Marshal(override)
+	data, err := json.Marshal(base)
 	if err != nil {
 		return base, err
 	}
@@ -19,29 +19,25 @@ func mergeSettings(base, override Settings) (Settings, error) {
 	if err != nil {
 		return base, err
 	}
-	err = mergo.Merge(&merged, base, mergo.WithOverride)
+	err = mergo.Merge(&merged, override, mergo.WithOverride)
 	if err != nil {
 		return base, err
 	}
 
 	// Merge IgnorePaths without duplicates
+	ignorePathSet := make(map[string]struct{})
+	allPaths := append(merged.IgnorePaths, base.IgnorePaths...)
+	allPaths = append(allPaths, override.IgnorePaths...)
 
-	ignorePathMap := make(map[string]bool)
-	for _, path := range merged.IgnorePaths {
-		ignorePathMap[path] = true
-	}
-	for _, path := range base.IgnorePaths {
-		if !ignorePathMap[path] {
+	merged.IgnorePaths = nil // Clear the existing paths
+
+	for _, path := range allPaths {
+		if _, exists := ignorePathSet[path]; !exists {
+			ignorePathSet[path] = struct{}{}
 			merged.IgnorePaths = append(merged.IgnorePaths, path)
-			ignorePathMap[path] = true
 		}
 	}
-	for _, path := range override.IgnorePaths {
-		if !ignorePathMap[path] {
-			merged.IgnorePaths = append(merged.IgnorePaths, path)
-			ignorePathMap[path] = true
-		}
-	}
+
 	return merged, nil
 }
 
@@ -50,7 +46,7 @@ func semanticMerge(config *ProgramConfig) error {
 	// Merge global settings into each program's settings
 	for i, program := range config.Programs {
 		// Step 1: Merge global settings into program settings
-		mergedSettings, err := mergeSettings(config.Settings, program.Settings)
+		mergedSettings, err := mergeSettings(program.Settings, config.Settings)
 		if err != nil {
 			return err
 		}
@@ -59,7 +55,7 @@ func semanticMerge(config *ProgramConfig) error {
 		// Merge program settings into each hook's settings
 		for j, hook := range program.Hooks {
 			// Step 2: Merge program settings into hook settings
-			mergedHookSettings, err := mergeSettings(program.Settings, hook.Settings)
+			mergedHookSettings, err := mergeSettings(hook.Settings, program.Settings)
 			if err != nil {
 				return err
 			}
