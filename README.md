@@ -1,4 +1,4 @@
-# cubx
+# Cubx
 
 <img src="./docs/cubx.png" height="300px" align="right" width="300px">
 
@@ -13,63 +13,62 @@
 ## Getting Started
 
 ### Prerequisites
-Ensure you have Docker installed on your machine. **cubx** interfaces directly with Docker, so it's required for operation.
+Ensure you have Docker installed on your machine. **Cubx** interfaces directly with Docker, so it's required for operation.
 
 #### MacOS
 
 If you are using macOS, you need to enable the net=host feature in Docker Engine. This feature allows port mapping to the host. While this functionality is enabled by default on Linux, it is still in beta on macOS and requires manual activation.
 
-For more information, visit the following link: https://docs.docker.com/network/drivers/host/#docker-desktop
+For more information, visit the following link: [Docker Desktop Network Drivers](https://docs.docker.com/network/drivers/host/#docker-desktop)
 
 ### Installation
-You need to clone the project repository:
+Clone the project repository:
 
 ```bash
 git clone git@github.com:eddort/cubx.git
 ```
 
-Then, navigate to the project directory:
+Navigate to the project directory:
 
 ```bash
 cd cubx
 ```
 
-Run the following command to build the project:
+Build the project:
 
 ```bash
 go build
 ```
 
-Now, you can use the command:
+You can now use the command:
 
 ```bash
 ./cubx
 ```
+
 > [!NOTE]
-> You can then specify a `PATH` variable in your environment to make `cubx` available globally
-
-This will allow you to start using the `cubx` tool.
-
+> To make `cubx` available globally, you can add it to your `PATH` variable.
 
 ## Usage
-Cubx has a set of preset programs, using the command you can check the list of available programs.
-To display the available programs, enter:
+Cubx has a set of preset programs. You can check the list of available programs with the command:
 
 ```sh
 cubx -h
 ```
+
 Output:
 
 ![cubx help](./docs/help.png)
 
 ## Basic Usage
 
-Cubx's main goal is to provide the easiest possible way for applications inside containers. Everything looks like you are running them locally.
+Cubx's main goal is to provide the easiest possible way to run applications inside containers, making it look like they are running locally.
 
 ```sh
 cubx node --eval 'console.log(`node version: ${process.version}`)'
 ```
-The command analog without the Cubx:
+
+This is analogous to running the command without Cubx:
 
 ```sh
 node --eval 'console.log(`node version: ${process.version}`)'
@@ -81,17 +80,16 @@ Output:
 node version: v22.1.0
 ```
 
-The output may be different only if you don't have Node.js installed or if you don't have the latest version of it.
+The output may differ if you don't have Node.js installed or if you don't have the latest version.
 
-As you can see, the way to use it is almost no different from running a regular program in a terminal. Only by running programs with cubx, you run programs in an isolated environment and get a lot of convenience and means to secure your data.
+By using Cubx, you run programs in an isolated environment with several advantages:
 
-- the application runs in a separate container
-- only the current volume is mounted, your data from other directories is safe
-- If you need to restrict access to folders or files in the working directory, you can do that too.
-- you can disconnect the application from the local network or from the entire Internet.
+- The application runs in a separate container.
+- Only the current volume is mounted, keeping your data in other directories safe.
+- You can restrict access to specific folders or files in the working directory.
+- You can disconnect the application from the local network or the entire Internet.
 
-#### Examples in other languages
-
+### Examples in Other Languages
 
 **Python**
 
@@ -110,15 +108,17 @@ Python version: 3.12.3 (main, May 14 2024, 05:40:55) [GCC 12.2.0]
 ```sh
 cubx ruby -e 'puts "Ruby version: #{RUBY_VERSION}"'
 ```
+
 Output:
+
 ```sh
 Ruby version: 3.3.1
 ```
 
 ## Features
-### Version control
-In addition to security, cubx provides a user-friendly interface for working with applications. For example, working with versions. nodejs has nvm (but not all programs have an analog). Cubx provides a version control mechanism that works as simply as possible.
-Just add ":version" to your program at the terminal prompt.
+
+### Version Control
+Cubx provides a user-friendly interface for working with different versions of applications. For example, Node.js has nvm, but not all programs have an equivalent. Cubx allows you to specify the version easily by adding `:version` to your command.
 
 ```sh
 cubx node:14 --eval 'console.log(`node version: ${process.version}`)'
@@ -130,16 +130,15 @@ Output:
 node version: v14.21.3
 ```
 
-Any other program works the same way, as long as it has a Docker-registry (all possible Docker-registries are supported).
+This works for any program that has a Docker registry.
 
-### Interactive version selection
+### Interactive Version Selection
 
-Sometimes we don't know what specific versions are out there right now and we don't want to search the internet for the exact spelling of the version. With the `--select` flush we can activate the interactive version selection interface.
+If you don't know the exact versions available and don't want to search the internet, you can use the `--select` flag to activate the interactive version selection interface.
 
 ```sh
 cubx --select node --eval 'console.log(`node version: ${process.version}`)'
 ```
-
 
 Select:
 
@@ -151,13 +150,9 @@ Result:
 
 ### File Exclusion
 
-It is a fairly common task to restrict access (visibility) of certain files and folders. You can store locally an .env file with keys that you are afraid of losing access to.
+You may need to restrict access to certain files and folders. For example, you might store a `.env` file with keys you don't want to lose access to. Running dependencies in Node.js can compromise your data due to unscrupulous third-party code, and this can happen on any platform that executes code downloaded from the Internet.
 
-As you know, when installing dependencies in Node.js, you can compromise your data due to unscrupulous third-party code.
-
-> This situation can happen not only in Node.js, but in any platform that executes code downloaded from the Internet.
-
-Let's demonstrate how this works with an example:
+Let's demonstrate with an example:
 
 `test-env.js`
 ```js
@@ -175,51 +170,49 @@ async function readEnvFile() {
 }
 
 readEnvFile();
-
 ```
+
 `.env`
 ```env
 SOME_PRIVATE_KEY=123
 ```
-Let's create a file and write the code in JS. We will read the local file with cofiguration and output it to the console. As if it were a malicious script.
 
-Next, let's call the script:
+Create the file and write the code in JavaScript to read the local configuration file and output it to the console, simulating a malicious script.
+
+Run the script:
 
 ```sh
 cubx node test-env.js 
 ```
 
-Output
+Output:
 
 ```sh
 SOME_PRIVATE_KEY=123
 ```
 
-Our script read the configuration without problems and output everything to the console.
+Our script reads the configuration without problems and outputs everything to the console.
 
-Let's now exclude the file and try again.
+Now, exclude the file and try again:
 
 ```sh
 cubx --ignore-path .env node test-env.js 
 ```
 
-Output
+Output:
 
 ```sh
-
 ```
 
-As a result we get empty output, because inside the container this file will be empty when the program is called.
+The output is empty because the file is excluded in the container when the program is called.
 
 ## Configuration
 
-In this section we will understand how to configure commands and how to create our own, based on any docker images.
+### What is Configuration in the Context of Cubx?
 
-### What is configuration in the context of cubx
+All programs that can be run with Cubx are described in a configuration that defines how to map commands to the Docker container, Docker image, command, description, and container settings at startup.
 
-All programs that can be run with cubx are described in a configuration that defines how to map commands to the docker container, docker image, command, description, and container settings at startup.
-
-You can learn any built-in command by typing:
+To view the configuration of any built-in command:
 
 ```sh
 cubx --show-config node                                 
@@ -236,3 +229,4 @@ settings:
     net: ""
     ignore_paths: []
 ```
+
