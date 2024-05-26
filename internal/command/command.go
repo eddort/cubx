@@ -35,8 +35,8 @@ func HandleProgram(tag string, commandName string, args []string, programConfig 
 	return programConfig.Image, tag, arguments
 }
 
-// getProgramSettings returns the program settings if they exist, otherwise returns the global settings
-func getProgramSettings(globalSettings, programSettings *config.Settings, hooks *[]config.Hook, additionalArgs []string) *config.Settings {
+// resolveProgramSettings returns the program settings if they exist, otherwise returns the global settings
+func resolveProgramSettings(globalSettings, programSettings *config.Settings, hooks *[]config.Hook, additionalArgs []string) *config.Settings {
 	for _, hook := range *hooks {
 		escArgs, err := shlex.Split(strings.Join(additionalArgs, " "))
 		if err != nil {
@@ -64,6 +64,20 @@ func getProgramSettings(globalSettings, programSettings *config.Settings, hooks 
 	return globalSettings
 }
 
+func mergeFlagsWithSettings(programSettings *config.Settings, flags config.CLI) *config.Settings {
+	flagsSetting := config.Settings{
+		IgnorePaths: flags.FileIgnores,
+	}
+
+	merged, err := config.MergeSettings(*programSettings, flagsSetting)
+
+	if err != nil {
+		log.Fatalf("Error merging command config: %v", err)
+	}
+
+	return &merged
+}
+
 func HandleShowConfig(flags config.CLI, configuration *config.ProgramConfig) {
 
 	if flags.ShowConfig == "" {
@@ -88,16 +102,18 @@ func GetDockerMeta(commandArgs []string, flags config.CLI, configuration *config
 
 	for _, programConfig := range configuration.Programs {
 		if programConfig.Name == commandName {
-
+			// merge setting with flags
 			image, tag, args := HandleProgram(dockerTag, commandName, additionalArgs, programConfig)
 
-			settings := getProgramSettings(&configuration.Settings, &programConfig.Settings, &programConfig.Hooks, additionalArgs)
+			settings := resolveProgramSettings(&configuration.Settings, &programConfig.Settings, &programConfig.Hooks, additionalArgs)
+			settingsWithFlags := mergeFlagsWithSettings(settings, flags)
+
 			if flags.IsSelectMode {
 				tags, _ := registry.FetchTags(image)
 				tag = tui.RunInteractivePrompt(tags, "latest")
 			}
 
-			return image + ":" + tag, args, settings
+			return image + ":" + tag, args, settingsWithFlags
 		}
 	}
 

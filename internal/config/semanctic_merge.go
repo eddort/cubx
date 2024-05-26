@@ -8,7 +8,7 @@ import (
 
 // mergeSettings merges two Settings objects with the values from the override having priority
 // and concatenates IgnorePaths slices without duplicates.
-func mergeSettings(base, override Settings) (Settings, error) {
+func MergeSettings(base, override Settings) (Settings, error) {
 	// Perform deep cloning of the base settings
 	merged := Settings{}
 	data, err := json.Marshal(base)
@@ -46,7 +46,7 @@ func semanticMerge(config *ProgramConfig) error {
 	// Merge global settings into each program's settings
 	for i, program := range config.Programs {
 		// Step 1: Merge global settings into program settings
-		mergedSettings, err := mergeSettings(config.Settings, program.Settings)
+		mergedSettings, err := MergeSettings(config.Settings, program.Settings)
 		if err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func semanticMerge(config *ProgramConfig) error {
 		// Merge program settings into each hook's settings
 		for j, hook := range program.Hooks {
 			// Step 2: Merge program settings into hook settings
-			mergedHookSettings, err := mergeSettings(program.Settings, hook.Settings)
+			mergedHookSettings, err := MergeSettings(program.Settings, hook.Settings)
 			if err != nil {
 				return err
 			}

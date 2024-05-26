@@ -52,7 +52,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 		// NetworkMode:  container.NetworkMode("container:" + hostContainerId),
 		NetworkMode: "host",
 		// PortBindings: portMappings,
-		Mounts: generateMounts(append(config.FileIgnores, settings.IgnorePaths...)),
+		Mounts: generateMounts(settings.IgnorePaths),
 	}
 
 	if settings.Net != "" {
@@ -141,7 +141,6 @@ func createTempDir() string {
 }
 
 func generateMounts(ignores []string) []mount.Mount {
-	fmt.Println(ignores)
 	mounts := []mount.Mount{
 		{
 			Type:   mount.TypeBind,
