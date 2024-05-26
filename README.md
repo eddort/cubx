@@ -2,7 +2,7 @@
 
 <img src="./docs/cubx.png" height="300px" align="right" width="300px">
 
-**Cubx** is a versatile tool that simplifies running console programs inside Docker containers. It is suitable for anyone who wants to use applications without the need to install them on their device, providing ease and convenience in operation..
+**Cubx** is a versatile tool that simplifies running console programs inside Docker containers. It is suitable for anyone who wants to use applications without the need to install them on their device, providing ease and convenience in operation.
 - **Simple Command Line Interface**: Run applications with simple commands as if they were installed locally.
 - **Port Mapping Support**: All application ports are automatically mapped to the host.
 - **Lightweight and Fast**: Minimal overhead and speedy execution of containers.
@@ -51,42 +51,78 @@ Now, you can use the command:
 This will allow you to start using the `cubx` tool.
 
 
-### Usage
-
-To display the available programs, enter
+## Usage
+Cubx has a set of preset programs, using the command you can check the list of available programs.
+To display the available programs, enter:
 
 ```sh
 cubx -h
 ```
 Output:
 
-![cubx help](./docs/help-example.png)
+![cubx help](./docs/help.png)
 
-To run an application using cubx:
+## Basic Usage
+
+Cubx's main goal is to provide the easiest possible way for applications inside containers. Everything looks like you are running them locally.
 
 ```sh
-cubx node --eval 'console.log("Hello from Cubx\n",`node version: ${process.version}`)'
+cubx node --eval 'console.log(`node version: ${process.version}`)'
+```
+The command analog without the Cubx:
+
+```sh
+node --eval 'console.log(`node version: ${process.version}`)'
 ```
 
 Output:
 
 ```sh
-Hello from Cubx
- node version: v22.1.0
+node version: v22.1.0
 ```
 
-We can also specify a specific version of the program with ":"
+The output may be different only if you don't have Node.js installed or if you don't have the latest version of it.
+
+As you can see, the way to use it is almost no different from running a regular program in a terminal. Only by running programs with cubx, you run programs in an isolated environment and get a lot of convenience and means to secure your data.
+
+- the application runs in a separate container
+- only the current volume is mounted, your data from other directories is safe
+- If you need to restrict access to folders or files in the working directory, you can do that too.
+- you can disconnect the application from the local network or from the entire Internet.
+
+## Features
+### Version control
+In addition to security, cubx provides a user-friendly interface for working with applications. For example, working with versions. nodejs has nvm (but not all programs have an analog). Cubx provides a version control mechanism that works as simply as possible.
+Just add ":version" to your program at the terminal prompt.
 
 ```sh
-cubx node:14 --eval 'console.log("Hello from Cubx\n",`node version: ${process.version}`)'
+cubx node:14 --eval 'console.log(`node version: ${process.version}`)'
 ```
 
 Output:
 
 ```sh
-Hello from Cubx
- node version: v14.21.3
+node version: v14.21.3
 ```
+
+Any other program works the same way, as long as it has a Docker-registry (all possible Docker-registries are supported).
+
+### Interactive version selection
+
+Sometimes we don't know what specific versions are out there right now and we don't want to search the internet for the exact spelling of the version. With the `--select` flush we can activate the interactive version selection interface.
+
+```sh
+cubx --select node --eval 'console.log(`node version: ${process.version}`)'
+```
+
+
+Select:
+
+![cubx select](./docs/select.png)
+
+Result:
+
+![cubx select](./docs/select-result.png)
 
 ```sh
 cubx npm install

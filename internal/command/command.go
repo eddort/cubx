@@ -109,6 +109,7 @@ func GetDockerMeta(commandArgs []string, flags config.CLI, configuration *config
 			settingsWithFlags := mergeFlagsWithSettings(settings, flags)
 
 			if flags.IsSelectMode {
+				// TODO: add loader
 				tags, _ := registry.FetchTags(image)
 				tag = tui.RunInteractivePrompt(tags, "latest")
 			}
