@@ -4,13 +4,11 @@ import (
 	"cubx/internal/config"
 	"cubx/internal/registry"
 	"cubx/internal/tui"
-	"fmt"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/google/shlex"
-	"gopkg.in/yaml.v3"
 )
 
 func HandleProgram(tag string, commandName string, args []string, programConfig config.Program) (string, string, []string) {
@@ -50,14 +48,6 @@ func getProgramSettings(globalSettings, programSettings *config.Settings) *confi
 	return globalSettings
 }
 
-func printProgramAsYAML(program config.Program) {
-	yamlData, err := yaml.Marshal(&program)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	fmt.Printf("---\n%s\n", string(yamlData))
-}
-
 func HandleShowConfig(flags config.CLI, configuration *config.ProgramConfig) {
 
 	if flags.ShowConfig == "" {
@@ -66,7 +56,7 @@ func HandleShowConfig(flags config.CLI, configuration *config.ProgramConfig) {
 
 	for _, programConfig := range configuration.Programs {
 		if flags.ShowConfig == programConfig.Name {
-			printProgramAsYAML(programConfig)
+			tui.PrintColorizedYAML(programConfig)
 			os.Exit(0)
 		}
 	}
