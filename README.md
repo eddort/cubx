@@ -122,7 +122,69 @@ Select:
 
 Result:
 
-![cubx select](./docs/select-result.png)
+![cubx select result](./docs/select-result.png)
+
+### File Exclusion
+
+It is a fairly common task to restrict access (visibility) of certain files and folders. You can store locally an .env file with keys that you are afraid of losing access to.
+
+As you know, when installing dependencies in Node.js, you can compromise your data due to unscrupulous third-party code.
+
+> This situation can happen not only in Node.js, but in any platform that executes code downloaded from the Internet.
+
+Let's demonstrate how this works with an example:
+
+`test-env.js`
+```js
+const fs = require('fs').promises;
+const path = require('path');
+
+async function readEnvFile() {
+    try {
+        const envFilePath = path.resolve(__dirname, '.env');
+        const data = await fs.readFile(envFilePath, 'utf8');
+        console.log(data);
+    } catch (err) {
+        console.error('Error reading .env file:', err);
+    }
+}
+
+readEnvFile();
+
+```
+`.env`
+```env
+SOME_PRIVATE_KEY=123
+```
+Let's create a file and write the code in JS. We will read the local file with cofiguration and output it to the console. As if it were a malicious script.
+
+Next, let's call the script:
+
+```sh
+cubx node test-env.js 
+```
+
+Output
+
+```sh
+SOME_PRIVATE_KEY=123
+```
+
+Our script read the configuration without problems and output everything to the console.
+
+Let's now exclude the file and try again.
+
+```sh
+cubx --ignore-path .env node test-env.js 
+```
+
+Output
+
+```sh
+
+```
+
+As a result we get empty output, because inside the container this file will be empty when the program is called.
 
 ```sh
 cubx npm install
