@@ -90,6 +90,31 @@ As you can see, the way to use it is almost no different from running a regular 
 - If you need to restrict access to folders or files in the working directory, you can do that too.
 - you can disconnect the application from the local network or from the entire Internet.
 
+#### Examples in other languages
+
+
+**Python**
+
+```sh
+cubx python -c 'import sys; print(f"Python version: {sys.version}")'
+```
+
+Output:
+
+```sh
+Python version: 3.12.3 (main, May 14 2024, 05:40:55) [GCC 12.2.0]
+```
+
+**Ruby**
+
+```sh
+cubx ruby -e 'puts "Ruby version: #{RUBY_VERSION}"'
+```
+Output:
+```sh
+Ruby version: 3.3.1
+```
+
 ## Features
 ### Version control
 In addition to security, cubx provides a user-friendly interface for working with applications. For example, working with versions. nodejs has nvm (but not all programs have an analog). Cubx provides a version control mechanism that works as simply as possible.
