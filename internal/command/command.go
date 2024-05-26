@@ -35,14 +35,9 @@ func HandleProgram(tag string, commandName string, args []string, programConfig 
 	return programConfig.Image, tag, arguments
 }
 
-func isEmptySettings(s *config.Settings) bool {
-	return s.Net == "" && len(s.IgnorePaths) == 0
-}
-
 // getProgramSettings returns the program settings if they exist, otherwise returns the global settings
 func getProgramSettings(globalSettings, programSettings *config.Settings) *config.Settings {
-	// fmt.Println(programSettings)
-	if !isEmptySettings(programSettings) {
+	if !programSettings.IsEmpty() {
 		return programSettings
 	}
 	return globalSettings
