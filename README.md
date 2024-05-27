@@ -239,8 +239,6 @@ settings:
 
 Cubx allows you to create your own custom commands similar to the built-in commands. This flexibility lets you extend the functionality of Cubx to suit your specific needs.
 
-
-
 To create your own commands, follow these steps:
 
 1. Create a folder named `.cubx` in your home directory (if it doesn't already exist).
@@ -253,20 +251,21 @@ Here is an example configuration for a custom command:
 
 ```yaml
 programs:
-  - name: cast
-    image: ghcr.io/foundry-rs/foundry
-    command: cast
-    serializer: string
-    description: Send transactions or query blockchain state with Cast
-    default_tag: ""
-    category: Ethereum
+  - name: httpie
+    image: alpine/httpie
+    command: http
+    description: A user-friendly HTTP client for the command line
+    default_tag: "latest"
+    category: Network
     hooks: []
     settings:
       net: ""
       ignore_paths: []
+    # Example usage: 
+    # cubx http GET https://example.com
 ```
 
-This configuration defines a new command `cast` that uses the `foundry` image from the GitHub Container Registry. The command can be used to send transactions or query blockchain state with Cast.
+This configuration defines a new command `httpie` that uses the `alpine/httpie` image from Docker Hub. The command can be used to make HTTP requests in a user-friendly way.
 
 ### Using Custom Commands
 
@@ -280,13 +279,13 @@ You should see your custom command listed among the available commands.
 
 ### Verifying Custom Command
 
-To check that everything is working correctly, you can execute a command using your new configuration. For example, to use the `cast` command to call a method on a smart contract, run:
+To check that everything is working correctly, you can execute a command using your new configuration. For example, to use the `httpie` command to make a GET request to a website, run:
 
 ```sh
-cubx cast call 0x6b175474e89094c44da98b954eedeac495271d0f 'totalSupply()(uint256)' --rpc-url https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf
+cubx httpie GET https://example.com
 ```
 
-This command calls the `totalSupply` method on the DAI contract to query the total supply of the token, using the specified RPC URL.
+This command makes a GET request to `https://example.com` and displays the response in a user-friendly format.
 
 ### More Examples
 
