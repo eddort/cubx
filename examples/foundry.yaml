@@ -4,31 +4,21 @@ programs:
     command: cast
     serializer: string
     description: Send transactions or query blockchain state with Cast
-    default_tag: ""
     category: Ethereum
-    hooks: []
-    settings:
-      net: ""
-      ignore_paths: []
+    # cubx cast call 0x6b175474e89094c44da98b954eedeac495271d0f 'totalSupply()(uint256)' --rpc-url https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf
+
   - name: forge
     image: ghcr.io/foundry-rs/foundry
     command: forge
     serializer: string
     description: Interact with smart contracts via Forge
-    default_tag: ""
     category: Ethereum
-    hooks: []
-    settings:
-      net: ""
-      ignore_paths: []
+
   - name: anvil
     image: ghcr.io/foundry-rs/foundry
     command: anvil
     serializer: string
     description: Run a local Ethereum node using Anvil
-    default_tag: ""
     category: Ethereum
-    hooks: []
-    settings:
-        net: ""
-        ignore_paths: []
+    # cubx anvil
+    # cubx cast block-number
