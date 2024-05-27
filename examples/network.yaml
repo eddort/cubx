@@ -1,0 +1,16 @@
+program:
+  - name: httpie
+    image: alpine/httpie
+    description: A user-friendly HTTP client for the command line
+    default_tag: "latest"
+    category: Network
+    # Example usage: 
+    # cubx http GET https://example.com
+
+  - name: curl
+    image: curlimages/curl
+    description: Transfer data from or to a server with curl
+    default_tag: "8.8.0"
+    category: Network
+    # Example usage: 
+    # cubx curl https://example.com

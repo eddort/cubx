@@ -1,0 +1,34 @@
+#
+# Attention! These commands have not yet been tested
+#
+programs:
+  - name: myth
+    image: mythril/myth
+    description: Security analysis tool for Ethereum smart contracts
+    default_tag: "latest"
+    category: Ethereum Analysis
+    # Example usage:
+    # cubx myth analyze -a 0x<contract_address>
+    # GitHub: https://github.com/ConsenSys/mythril
+
+  - name: slither
+    image: trailofbits/eth-security-toolbox
+    command: slither
+    description: Static analysis framework for smart contracts
+    default_tag: "nightly"
+    category: Ethereum Analysis
+    # Example usage:
+    # cubx slither /path/to/contract.sol
+    # GitHub: https://github.com/crytic/slither
+    # Github: https://github.com/trailofbits/eth-security-toolbox
+    # Docker Hub: https://hub.docker.com/r/trailofbits/eth-security-toolbox
+    # Github Docker Registry: ghcr.io/trailofbits/eth-security-toolbox:nightly
+
+  - name: manticore
+    image: smartbugs/manticore
+    description: Symbolic execution tool for analysis of smart contracts
+    default_tag: "0.3.7"
+    category: Ethereum Analysis
+    # Example usage:
+    # cubx manticore /path/to/contract.sol
+    # GitHub: https://github.com/trailofbits/manticore
