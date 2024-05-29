@@ -1,0 +1,18 @@
+programs:
+  - name: jq
+    image: ghcr.io/jqlang/jq
+    description: Command-line JSON processor
+    default_tag: "latest"
+    category: Data Processing
+    # Example usage:
+    # cubx jq '.' /path/to/file.json
+    # GitHub: https://github.com/stedolan/jq
+
+  - name: yq
+    image: mikefarah/yq
+    description: Command-line YAML processor
+    default_tag: "latest"
+    category: Data Processing
+    # Example usage:
+    # cubx yq eval '.' /path/to/file.yaml
+    # GitHub: https://github.com/mikefarah/yq
