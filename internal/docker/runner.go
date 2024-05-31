@@ -48,7 +48,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 	}
 
 	dockerHostConfig := &container.HostConfig{
-		AutoRemove: true,
+		// AutoRemove: true,
 		// NetworkMode:  container.NetworkMode("container:" + hostContainerId),
 		NetworkMode: "host",
 		// PortBindings: portMappings,
@@ -97,7 +97,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 
 	select {
 	case <-sigCh:
-		fmt.Println("Completion signal received, stop and delete the container...")
+		// fmt.Println("Completion signal received, stop and delete the container...")
 		cleanUpContainer(cli, ctx, resp.ID)
 
 	case err := <-errCh:
@@ -125,9 +125,9 @@ func cleanUpContainer(cli *client.Client, ctx context.Context, containerID strin
 	if err := cli.ContainerStop(ctx, containerID, container.StopOptions{}); err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to stop the container: %v\n", err)
 	}
-	// if err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{Force: true}); err != nil {
-	// 	fmt.Fprintf(os.Stderr, "Failed to delete the container: %v\n", err)
-	// }
+	if err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{Force: true}); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to delete the container: %v\n", err)
+	}
 }
 
 // createTempDir creates a temporary empty directory

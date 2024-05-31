@@ -3,6 +3,7 @@ package command
 import (
 	"cubx/internal/config"
 	"cubx/internal/registry"
+	"cubx/internal/session"
 	"cubx/internal/tui"
 	"log"
 	"os"
@@ -92,6 +93,29 @@ func HandleShowConfig(flags config.CLI, configuration *config.ProgramConfig) {
 	}
 
 	log.Fatalf("not found command: %v", flags.ShowConfig)
+}
+
+func HandleSession(flags config.CLI, configuration *config.ProgramConfig) {
+	if !flags.Session {
+		return
+	}
+	aliases := []string{}
+
+	for _, programConfig := range configuration.Programs {
+		aliases = append(aliases, programConfig.Name+"='cubx "+programConfig.Name+"'")
+	}
+
+	conf := session.Settings{
+		Prompt:  "[cubx]$PS1",
+		Aliases: aliases,
+	}
+
+	err := session.Run(conf)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	os.Exit(0)
 }
 
 func GetDockerMeta(commandArgs []string, flags config.CLI, configuration *config.ProgramConfig) (string, []string, *config.Settings) {

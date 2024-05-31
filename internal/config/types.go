@@ -6,6 +6,7 @@ type CLI struct {
 	IsSelectMode bool     `yaml:"is_select_mode"`
 	FileIgnores  []string `yaml:"file_ignores"`
 	ShowConfig   string   `yaml:"show_config"`
+	Session      bool     `yaml:"session"`
 }
 
 type Hook struct {
