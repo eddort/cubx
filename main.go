@@ -18,6 +18,7 @@ func main() {
 	commandArgs, flags := cli.Parse(*configuration)
 
 	command.HandleShowConfig(flags, configuration)
+	command.HandleSession(flags, configuration)
 
 	docImage, command, settings := command.GetDockerMeta(commandArgs, flags, configuration)
 
