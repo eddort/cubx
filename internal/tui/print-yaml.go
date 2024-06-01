@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 
 	"gopkg.in/yaml.v3"
@@ -28,14 +27,15 @@ func colorizeYAML(yamlStr string) string {
 	return resYaml
 }
 
-func PrintColorizedYAML(program interface{}) {
+func PrintColorizedYAML(program interface{}) error {
 	yamlData, err := yaml.Marshal(&program)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return fmt.Errorf("error print colorized yaml: %w", err)
 	}
 
 	yamlStr := string(yamlData)
 	resYaml := colorizeYAML(yamlStr)
 
 	fmt.Printf("---\n%s\n", resYaml)
+	return nil
 }
