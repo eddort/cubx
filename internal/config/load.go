@@ -90,9 +90,12 @@ func loadConfigFile(filePath string) (*ProgramConfig, error) {
 func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	configFileName := "config.yaml"
 	var loadedConfigs []string
-
+	pwd, err := os.Getwd()
+	if err != nil {
+		return nil, nil, fmt.Errorf("getting current directory: %w", err)
+	}
 	// Load current directory config
-	currentDirConfigPath := filepath.Join(".cubx", configFileName)
+	currentDirConfigPath := filepath.Join(pwd, ".cubx", configFileName)
 	currentConfig, err := loadConfigFile(currentDirConfigPath)
 	if err != nil {
 		return nil, nil, err
@@ -128,5 +131,55 @@ func LoadConfig(withDefaults bool) (*ProgramConfig, []string, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return finalConfig, loadedConfigs, nil
+
+	preparedConfig, err := configPreprocessing(finalConfig, loadedConfigs)
+	if err != nil {
+		return nil, nil, err
+	}
+	return preparedConfig, loadedConfigs, nil
+}
+
+func findDockerfileInDirectory(dir, dockerfileName string) bool {
+	// Building a Dockerfile path
+	dockerfilePath := filepath.Join(dir, dockerfileName)
+	// Checking for file availability
+	if _, err := os.Stat(dockerfilePath); err == nil {
+		return true
+	}
+	return false
+}
+
+func configPreprocessing(finalConfig *ProgramConfig, loadedConfigs []string) (*ProgramConfig, error) {
+	foundDockerfile := make(map[string]bool)
+
+	// Reversing the paths to configuration files in reverse order
+	for i := len(loadedConfigs) - 1; i >= 0; i-- {
+		filePath := loadedConfigs[i]
+		dir := filepath.Dir(filePath)
+
+		// Searching all programs in the final configuration
+		for index := range finalConfig.Programs {
+			program := &finalConfig.Programs[index] // We get a link to the program
+			if program.Dockerfile == "" {
+				continue // Skip programs without a specified Dockerfile path
+			}
+
+			// Search for Dockerfile in the current directory
+			if findDockerfileInDirectory(dir, program.Dockerfile) {
+				// fmt.Printf("Dockerfile '%s' found in directory: %s\n", program.Dockerfile, dir)
+				program.Dockerfile = filepath.Join(dir, program.Dockerfile) // Changing the path in the original slice
+				foundDockerfile[program.Dockerfile] = true
+			}
+		}
+		// fmt.Println("Processed file and directory:", filePath, dir)
+	}
+
+	// Checking for the presence of a Dockerfile for each program that requires it
+	for _, program := range finalConfig.Programs {
+		if program.Dockerfile != "" && !foundDockerfile[program.Dockerfile] {
+			return nil, fmt.Errorf("dockerfile not found for program: %s", program.Dockerfile)
+		}
+	}
+
+	return finalConfig, nil
 }

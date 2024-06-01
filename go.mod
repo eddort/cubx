@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/charmbracelet/bubbletea v0.26.3
 	github.com/docker/docker v26.1.2+incompatible
+	github.com/google/go-cmp v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

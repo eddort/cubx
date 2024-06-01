@@ -4,8 +4,8 @@ import (
 	"cubx/internal/cli"
 	"cubx/internal/command"
 	"cubx/internal/config"
+	"cubx/internal/tui"
 	"errors"
-	"fmt"
 	"os"
 )
 
@@ -14,7 +14,7 @@ func main() {
 	configuration, _, err := config.LoadConfig(true)
 
 	if err != nil {
-		fmt.Println("An unexpected error occurred:", err)
+		tui.PrintError(err)
 		os.Exit(1)
 	}
 
@@ -26,7 +26,7 @@ func main() {
 			cli.ShowHelpMessage(*configuration)
 			os.Exit(0)
 		} else {
-			fmt.Println("An unexpected error occurred:", err)
+			tui.PrintError(err)
 			os.Exit(1)
 		}
 	}

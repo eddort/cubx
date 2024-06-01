@@ -2,7 +2,7 @@ programs:
   - name: jq
     image: ghcr.io/jqlang/jq
     description: Command-line JSON processor
-    default_tag: "latest"
+    tag: "latest"
     category: Data Processing
     # Example usage:
     # cubx jq '.' /path/to/file.json
@@ -11,7 +11,7 @@ programs:
   - name: yq
     image: mikefarah/yq
     description: Command-line YAML processor
-    default_tag: "latest"
+    tag: "latest"
     category: Data Processing
     # Example usage:
     # cubx yq eval '.' /path/to/file.yaml

@@ -12,6 +12,9 @@ func setDefaults(config *ProgramConfig) {
 		if config.Programs[i].Serializer == "" {
 			config.Programs[i].Serializer = "default"
 		}
+		if config.Programs[i].Tag == "" {
+			config.Programs[i].Tag = "latest"
+		}
 	}
 }
 
