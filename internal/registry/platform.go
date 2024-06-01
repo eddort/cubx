@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -9,26 +9,26 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-func FetchManifests(imageName string) *[]v1.Descriptor {
+func FetchManifests(imageName string) (*[]v1.Descriptor, error) {
 	ref, err := name.ParseReference(imageName)
 	if err != nil {
-		log.Fatalf("Error parsing image name: %v", err)
+		return nil, fmt.Errorf("error parsing image name: %w", err)
 	}
 
 	desc, err := remote.Get(ref, remote.WithAuthFromKeychain(authn.DefaultKeychain))
 	if err != nil {
-		log.Fatalf("Error fetching image description: %v", err)
+		return nil, fmt.Errorf("error fetching image description: %w", err)
 	}
 
 	imageIndex, err := desc.ImageIndex()
 	if err != nil {
-		log.Fatalf("Error fetching image index: %v", err)
+		return nil, fmt.Errorf("error fetching image index: %w", err)
 	}
 
 	indexManifest, err := imageIndex.IndexManifest()
 	if err != nil {
-		log.Fatalf("Error getting index manifest: %v", err)
+		return nil, fmt.Errorf("error getting index manifest: %w", err)
 	}
 
-	return &indexManifest.Manifests
+	return &indexManifest.Manifests, nil
 }

@@ -1,6 +1,9 @@
 package platform
 
-import "cubx/internal/registry"
+import (
+	"cubx/internal/registry"
+	"fmt"
+)
 
 type OsArch struct {
 	Os   string
@@ -49,9 +52,11 @@ func isValidOsArch(Os string, Arch string) bool {
 	return ok
 }
 
-func GetPlatforms(imageName string) *PlatformMap {
-	manifests := registry.FetchManifests(imageName)
-
+func GetPlatforms(imageName string) (*PlatformMap, error) {
+	manifests, err := registry.FetchManifests(imageName)
+	if err != nil {
+		return nil, fmt.Errorf("error fetch manifests: %w", err)
+	}
 	var platforms = NewPlatformMap()
 
 	for _, manifest := range *manifests {
@@ -60,5 +65,5 @@ func GetPlatforms(imageName string) *PlatformMap {
 		platforms.Add(os, arch)
 	}
 
-	return platforms
+	return platforms, nil
 }

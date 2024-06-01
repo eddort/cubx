@@ -2,145 +2,28 @@ package command
 
 import (
 	"cubx/internal/config"
-	"cubx/internal/registry"
-	"cubx/internal/session"
-	"cubx/internal/tui"
-	"log"
-	"os"
-	"strings"
-
-	"github.com/google/shlex"
+	"errors"
 )
 
-func HandleProgram(tag string, commandName string, args []string, programConfig config.Program) (string, string, []string) {
-	arguments := args
+var ErrCommandNotFound = errors.New("command is nil")
 
-	if programConfig.Command != "" {
-		parts, err := shlex.Split(programConfig.Command)
-		if err != nil {
-			log.Fatalf("Error parsing command: %v", err)
-		}
-
-		arguments = append(parts, args...)
-	}
-
-	if programConfig.Serializer == "string" {
-		escArgs := escapeArgs(arguments)
-		arguments = []string{strings.Join(escArgs, " ")}
-	}
-
-	if programConfig.DefaultTag != "" {
-		tag = programConfig.DefaultTag
-	}
-
-	return programConfig.Image, tag, arguments
+type Command interface {
+	Execute() error
 }
 
-// resolveProgramSettings returns the program settings if they exist, otherwise returns the global settings
-func resolveProgramSettings(globalSettings, programSettings *config.Settings, hooks *[]config.Hook, additionalArgs []string) *config.Settings {
-	for _, hook := range *hooks {
-		escArgs, err := shlex.Split(strings.Join(additionalArgs, " "))
-		if err != nil {
-			log.Fatalf("Error parsing hook command: %v", err)
-		}
-
-		hookParts, err := shlex.Split(hook.Command)
-		if err != nil {
-			log.Fatalf("Error parsing hook command: %v", err)
-		}
-
-		argsString := strings.Join(escArgs, " ")
-		hookString := strings.Join(hookParts, " ")
-
-		if strings.HasPrefix(argsString, hookString) {
-
-			return &hook.Settings
-		}
+func Execute(commandArgs []string, flags config.CLI, configuration *config.ProgramConfig) error {
+	var command Command
+	if flags.ShowConfig != "" {
+		command = &ShowConfigCommand{Flags: flags, Configuration: configuration}
+	} else if flags.Session {
+		command = &SessionCommand{Flags: flags, Configuration: configuration}
+	} else if len(commandArgs) > 0 {
+		command = &DockerCommand{Flags: flags, Configuration: configuration, CommandArgs: commandArgs}
 	}
 
-	if !programSettings.IsEmpty() {
-		return programSettings
+	if command == nil {
+		return ErrCommandNotFound
 	}
 
-	return globalSettings
-}
-
-func mergeFlagsWithSettings(programSettings *config.Settings, flags config.CLI) *config.Settings {
-	flagsSetting := config.Settings{
-		IgnorePaths: flags.FileIgnores,
-	}
-
-	merged, err := config.MergeSettings(*programSettings, flagsSetting)
-
-	if err != nil {
-		log.Fatalf("Error merging command config: %v", err)
-	}
-
-	return &merged
-}
-
-func HandleShowConfig(flags config.CLI, configuration *config.ProgramConfig) {
-
-	if flags.ShowConfig == "" {
-		return
-	}
-
-	for _, programConfig := range configuration.Programs {
-		if flags.ShowConfig == programConfig.Name {
-			tui.PrintColorizedYAML(programConfig)
-			os.Exit(0)
-		}
-	}
-
-	log.Fatalf("not found command: %v", flags.ShowConfig)
-}
-
-func HandleSession(flags config.CLI, configuration *config.ProgramConfig) {
-	if !flags.Session {
-		return
-	}
-	aliases := []string{}
-
-	for _, programConfig := range configuration.Programs {
-		aliases = append(aliases, programConfig.Name+"='cubx "+programConfig.Name+"'")
-	}
-
-	conf := session.Settings{
-		Prompt:  "[cubx]$PS1",
-		Aliases: aliases,
-	}
-
-	err := session.Run(conf)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	os.Exit(0)
-}
-
-func GetDockerMeta(commandArgs []string, flags config.CLI, configuration *config.ProgramConfig) (string, []string, *config.Settings) {
-	baseCommand := commandArgs[0]
-	additionalArgs := commandArgs[1:]
-
-	commandName, dockerTag := parseBaseCommand(baseCommand)
-
-	for _, programConfig := range configuration.Programs {
-		if programConfig.Name == commandName {
-			// merge setting with flags
-			image, tag, args := HandleProgram(dockerTag, commandName, additionalArgs, programConfig)
-
-			settings := resolveProgramSettings(&configuration.Settings, &programConfig.Settings, &programConfig.Hooks, additionalArgs)
-			settingsWithFlags := mergeFlagsWithSettings(settings, flags)
-
-			if flags.IsSelectMode {
-				// TODO: add loader
-				tags, _ := registry.FetchTags(image)
-				tag = tui.RunInteractivePrompt(tags, "latest")
-			}
-
-			return image + ":" + tag, args, settingsWithFlags
-		}
-	}
-
-	return "ubuntu:" + dockerTag, commandArgs, &configuration.Settings
+	return command.Execute()
 }

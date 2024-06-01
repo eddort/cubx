@@ -5,7 +5,6 @@ import (
 	"cubx/internal/platform"
 	"cubx/internal/streams"
 	"fmt"
-	"os"
 
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
@@ -26,19 +25,19 @@ func imageExists(ctx context.Context, cli *client.Client, imageName string) (boo
 }
 
 func pullImage(ctx context.Context, cli *client.Client, dockerImage string) error {
-
 	found, err := imageExists(ctx, cli, dockerImage)
 	if err != nil {
-		// TODO: combine error and return
-		fmt.Fprintln(os.Stderr, "Error checking image existence:", err)
-		os.Exit(1)
+		return fmt.Errorf("error checking image existence: %w", err)
 	}
 
 	if found {
 		return nil
 	}
 
-	platforms := platform.GetPlatforms(dockerImage)
+	platforms, err := platform.GetPlatforms(dockerImage)
+	if err != nil {
+		return err
+	}
 	platformKey := platforms.GetString()
 
 	fmt.Printf("Download image with platform: %s", platformKey)
@@ -46,9 +45,7 @@ func pullImage(ctx context.Context, cli *client.Client, dockerImage string) erro
 	pullRes, err := cli.ImagePull(ctx, dockerImage, image.PullOptions{Platform: platformKey})
 
 	if err != nil {
-		// TODO: combine error and return
-		fmt.Fprintln(os.Stderr, "Error pulling a Docker container:", err)
-		os.Exit(1)
+		return fmt.Errorf("error pulling a Docker container: %w", err)
 	}
 	defer pullRes.Close() // Ensure the response body is closed
 
