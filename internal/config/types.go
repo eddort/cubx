@@ -24,6 +24,7 @@ type Program struct {
 	Category    string   `yaml:"category"`
 	Hooks       []Hook   `yaml:"hooks" validate:"dive"`
 	Settings    Settings `yaml:"settings"`
+	Dockerfile  string   `yaml:"dockerfile"`
 }
 
 type Settings struct {
