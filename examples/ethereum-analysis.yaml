@@ -5,7 +5,7 @@ programs:
   - name: myth
     image: mythril/myth
     description: Security analysis tool for Ethereum smart contracts
-    default_tag: "latest"
+    tag: "latest"
     category: Ethereum Analysis
     # Example usage:
     # cubx myth analyze -a 0x<contract_address>
@@ -15,7 +15,7 @@ programs:
     image: trailofbits/eth-security-toolbox
     command: slither
     description: Static analysis framework for smart contracts
-    default_tag: "nightly"
+    tag: "nightly"
     category: Ethereum Analysis
     # Example usage:
     # cubx slither /path/to/contract.sol
@@ -27,7 +27,7 @@ programs:
   - name: manticore
     image: smartbugs/manticore
     description: Symbolic execution tool for analysis of smart contracts
-    default_tag: "0.3.7"
+    tag: "0.3.7"
     category: Ethereum Analysis
     # Example usage:
     # cubx manticore /path/to/contract.sol

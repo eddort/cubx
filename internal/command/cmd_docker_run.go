@@ -6,6 +6,7 @@ import (
 	"cubx/internal/registry"
 	"cubx/internal/tui"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/shlex"
@@ -25,6 +26,13 @@ func (s *DockerRunCommand) GetDockerMeta() (string, []string, *config.Settings, 
 
 	for _, programConfig := range s.Configuration.Programs {
 		if programConfig.Name == commandName {
+			if programConfig.Dockerfile != "" {
+				imageWithTag := programConfig.Image + ":" + programConfig.Tag
+				err := docker.BuildImage(programConfig.Dockerfile, imageWithTag, filepath.Dir(programConfig.Dockerfile))
+				if err != nil {
+					return "", nil, nil, fmt.Errorf("error while building docker image: %w", err)
+				}
+			}
 			// merge setting with flags
 			image, tag, args, err := handleProgram(dockerTag, commandName, additionalArgs, programConfig)
 			if err != nil {
@@ -83,8 +91,8 @@ func handleProgram(tag string, _ string, args []string, programConfig config.Pro
 		arguments = []string{strings.Join(escArgs, " ")}
 	}
 
-	if programConfig.DefaultTag != "" {
-		tag = programConfig.DefaultTag
+	if programConfig.Tag != "" {
+		tag = programConfig.Tag
 	}
 
 	return programConfig.Image, tag, arguments, nil

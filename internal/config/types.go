@@ -20,7 +20,7 @@ type Program struct {
 	Command     string   `yaml:"command"`
 	Serializer  string   `yaml:"serializer" validate:"oneof='' default string testhandler"`
 	Description string   `yaml:"description"`
-	DefaultTag  string   `yaml:"default_tag"`
+	Tag         string   `yaml:"tag"`
 	Category    string   `yaml:"category"`
 	Hooks       []Hook   `yaml:"hooks" validate:"dive"`
 	Settings    Settings `yaml:"settings"`
