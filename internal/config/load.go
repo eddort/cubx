@@ -166,12 +166,12 @@ func configPreprocessing(finalConfig *ProgramConfig, loadedConfigs []string) (*P
 
 			// Search for Dockerfile in the current directory
 			if findDockerfileInDirectory(dir, program.Dockerfile) {
-				fmt.Printf("Dockerfile '%s' found in directory: %s\n", program.Dockerfile, dir)
+				// fmt.Printf("Dockerfile '%s' found in directory: %s\n", program.Dockerfile, dir)
 				program.Dockerfile = filepath.Join(dir, program.Dockerfile) // Changing the path in the original slice
 				foundDockerfile[program.Dockerfile] = true
 			}
 		}
-		fmt.Println("Processed file and directory:", filePath, dir)
+		// fmt.Println("Processed file and directory:", filePath, dir)
 	}
 
 	// Checking for the presence of a Dockerfile for each program that requires it
