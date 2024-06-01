@@ -49,6 +49,10 @@ func (s *DockerRunCommand) GetDockerMeta() (string, []string, *config.Settings, 
 			}
 
 			if s.Flags.IsSelectMode {
+				// TODO: move to the validation part
+				if programConfig.Dockerfile != "" {
+					return "", nil, nil, fmt.Errorf("use of the select flag is not allowed in local builds")
+				}
 				// TODO: add loader
 				tags, err := registry.FetchTags(image)
 				if err != nil {
