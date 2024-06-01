@@ -76,7 +76,10 @@ func (s *DockerCommand) GetDockerMeta() (string, []string, *config.Settings, err
 				if err != nil {
 					return "", nil, nil, fmt.Errorf("error fetching tags: %w", err)
 				}
-				tag = tui.RunInteractivePrompt(tags, "latest")
+				tag, err = tui.RunInteractivePrompt(tags, "latest")
+				if err != nil {
+					return "", nil, nil, fmt.Errorf("error processing tags: %w", err)
+				}
 			}
 
 			return image + ":" + tag, args, settingsWithFlags, nil
