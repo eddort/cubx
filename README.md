@@ -231,7 +231,7 @@ image: node
 command: node
 serializer: ""
 description: Execute Node.js programs
-default_tag: ""
+tag: ""
 category: Node.js
 hooks: []
 settings:
@@ -259,7 +259,7 @@ programs:
     image: alpine/httpie
     command: http
     description: A user-friendly HTTP client for the command line
-    default_tag: "latest"
+    tag: "latest"
     category: Network
     hooks: []
     settings:
