@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func setupTempDir(t *testing.T) (string, func()) {
@@ -103,21 +104,24 @@ programs:
 
 func TestLoadDefaultConfig(t *testing.T) {
 	config, _, err := LoadConfig(true)
-
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
 	newConf := getProgramConfig()
+
 	sort.Slice(newConf.Programs, func(i, j int) bool {
 		return newConf.Programs[i].Name < newConf.Programs[j].Name
 	})
 
-	equal := reflect.DeepEqual(config, getProgramConfig())
+	sort.Slice(config.Programs, func(i, j int) bool {
+		return config.Programs[i].Name < config.Programs[j].Name
+	})
 
-	if err != nil {
-		t.Fatalf("Failed to load config: %v", err)
+	diff := cmp.Diff(config, newConf)
+	if diff != "" {
+		t.Fatalf("Failed to load config: %v", diff)
 	}
 
-	if equal != true {
-		t.Fatal("Error while loading default config")
-	}
 }
 
 func TestMergeConfig(t *testing.T) {
