@@ -18,7 +18,7 @@ import (
 func RunImageAndCommand(dockerImage string, command []string, config config.CLI, settings *config.Settings) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return fmt.Errorf("error creating Docker client: %v", err)
+		return fmt.Errorf("error creating Docker client: %w", err)
 	}
 
 	ctx := context.Background()
@@ -26,7 +26,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 	err = pullImage(ctx, cli, dockerImage)
 
 	if err != nil {
-		return fmt.Errorf("error pulling a Docker container: %v", err)
+		return fmt.Errorf("error pulling a Docker container: %w", err)
 	}
 
 	// hostContainerId := EnsureHostContainer(ctx, cli)
@@ -47,7 +47,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 
 	mounts, err := generateMounts(settings.IgnorePaths)
 	if err != nil {
-		return fmt.Errorf("generate mounts error: %v", err)
+		return fmt.Errorf("generate mounts error: %w", err)
 	}
 
 	dockerHostConfig := &container.HostConfig{
@@ -65,11 +65,11 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 	resp, err := cli.ContainerCreate(ctx, dockerContainerConfig, dockerHostConfig, nil, nil, "")
 
 	if err != nil {
-		return fmt.Errorf("error creating a Docker container: %v", err)
+		return fmt.Errorf("error creating a Docker container: %w", err)
 	}
 
 	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
-		return fmt.Errorf("error starting a Docker container: %v", err)
+		return fmt.Errorf("error starting a Docker container: %w", err)
 	}
 	// TODO: check if we need this
 	// defer cleanUpContainer(cli, ctx, resp.ID)
@@ -82,7 +82,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 		Logs:   true,
 	})
 	if err != nil {
-		return fmt.Errorf("error connecting to the container: %v", err)
+		return fmt.Errorf("error connecting to the container: %w", err)
 	}
 	defer out.Close()
 
@@ -102,7 +102,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 
 	case err := <-errCh:
 		if err != nil {
-			return fmt.Errorf("error waiting for container completion: %v", err)
+			return fmt.Errorf("error waiting for container completion: %w", err)
 		}
 
 	case <-statusCh:
@@ -116,17 +116,17 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 func getCurrentDir() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		return "", fmt.Errorf("failed to retrieve the current directory: %v", err)
+		return "", fmt.Errorf("failed to retrieve the current directory: %w", err)
 	}
 	return dir, nil
 }
 
 func cleanUpContainer(cli *client.Client, ctx context.Context, containerID string) error {
 	if err := cli.ContainerStop(ctx, containerID, container.StopOptions{}); err != nil {
-		return fmt.Errorf("failed to stop the container: %v", err)
+		return fmt.Errorf("failed to stop the container: %w", err)
 	}
 	if err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{Force: true}); err != nil {
-		return fmt.Errorf("failed to delete the container: %v", err)
+		return fmt.Errorf("failed to delete the container: %w", err)
 	}
 	return nil
 }
@@ -135,7 +135,7 @@ func cleanUpContainer(cli *client.Client, ctx context.Context, containerID strin
 func createTempDir() (string, error) {
 	tempDir, err := os.MkdirTemp("", "empty")
 	if err != nil {
-		return "", fmt.Errorf("error creating temporary directory: %v", err)
+		return "", fmt.Errorf("error creating temporary directory: %w", err)
 	}
 	return tempDir, nil
 }
@@ -159,7 +159,7 @@ func generateMounts(ignores []string) ([]mount.Mount, error) {
 		// Convert the path to an absolute path
 		absPath, err := filepath.Abs(ignore)
 		if err != nil {
-			return nil, fmt.Errorf("error converting path to absolute: %v", err)
+			return nil, fmt.Errorf("error converting path to absolute: %w", err)
 		}
 
 		// Check if the path exists
@@ -169,7 +169,7 @@ func generateMounts(ignores []string) ([]mount.Mount, error) {
 		}
 
 		if err != nil {
-			return nil, fmt.Errorf("error stating path: %v", err)
+			return nil, fmt.Errorf("error stating path: %w", err)
 		}
 
 		var source string
