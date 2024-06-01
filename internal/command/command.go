@@ -18,7 +18,7 @@ func Execute(commandArgs []string, flags config.CLI, configuration *config.Progr
 	} else if flags.Session {
 		command = &SessionCommand{Flags: flags, Configuration: configuration}
 	} else if len(commandArgs) > 0 {
-		command = &DockerCommand{Flags: flags, Configuration: configuration, CommandArgs: commandArgs}
+		command = &DockerRunCommand{Flags: flags, Configuration: configuration, CommandArgs: commandArgs}
 	}
 
 	if command == nil {
