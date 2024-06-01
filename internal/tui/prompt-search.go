@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	bubbletea "github.com/charmbracelet/bubbletea"
@@ -105,16 +104,15 @@ func min(a, b int) int {
 	return b
 }
 
-func RunInteractivePrompt(variants []string, defaultVariant string) string {
+func RunInteractivePrompt(variants []string, defaultVariant string) (string, error) {
 	p := bubbletea.NewProgram(initialModel(variants))
 	mdl, err := p.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error running program: %v\n", err)
-		os.Exit(1)
+		return "", fmt.Errorf("error running search: %w", err)
 	}
 	// Type assertion to get a specific type
 	if m, ok := mdl.(myModel); ok {
-		return m.selected
+		return m.selected, nil
 	}
-	return defaultVariant
+	return defaultVariant, nil
 }
