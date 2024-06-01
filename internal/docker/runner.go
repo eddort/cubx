@@ -15,11 +15,10 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func RunImageAndCommand(dockerImage string, command []string, config config.CLI, settings *config.Settings) {
+func RunImageAndCommand(dockerImage string, command []string, config config.CLI, settings *config.Settings) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error creating Docker client:", err)
-		os.Exit(1)
+		return fmt.Errorf("error creating Docker client: %v", err)
 	}
 
 	ctx := context.Background()
@@ -27,8 +26,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 	err = pullImage(ctx, cli, dockerImage)
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error pulling a Docker container:", err)
-		os.Exit(1)
+		return fmt.Errorf("error pulling a Docker container: %v", err)
 	}
 
 	// hostContainerId := EnsureHostContainer(ctx, cli)
@@ -47,12 +45,17 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 		// Labels: ["cubx-container"]
 	}
 
+	mounts, err := generateMounts(settings.IgnorePaths)
+	if err != nil {
+		return fmt.Errorf("generate mounts error: %v", err)
+	}
+
 	dockerHostConfig := &container.HostConfig{
 		// AutoRemove: true,
 		// NetworkMode:  container.NetworkMode("container:" + hostContainerId),
 		NetworkMode: "host",
 		// PortBindings: portMappings,
-		Mounts: generateMounts(settings.IgnorePaths),
+		Mounts: mounts,
 	}
 
 	if settings.Net != "" {
@@ -62,13 +65,11 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 	resp, err := cli.ContainerCreate(ctx, dockerContainerConfig, dockerHostConfig, nil, nil, "")
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error creating a Docker container:", err)
-		os.Exit(1)
+		return fmt.Errorf("error creating a Docker container: %v", err)
 	}
 
 	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
-		fmt.Fprintln(os.Stderr, "Error starting a Docker container:", err)
-		os.Exit(1)
+		return fmt.Errorf("error starting a Docker container: %v", err)
 	}
 	// TODO: check if we need this
 	// defer cleanUpContainer(cli, ctx, resp.ID)
@@ -81,8 +82,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 		Logs:   true,
 	})
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error connecting to the container:", err)
-		os.Exit(1)
+		return fmt.Errorf("error connecting to the container: %v", err)
 	}
 	defer out.Close()
 
@@ -98,53 +98,59 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 	select {
 	case <-sigCh:
 		// fmt.Println("Completion signal received, stop and delete the container...")
-		cleanUpContainer(cli, ctx, resp.ID)
+		return cleanUpContainer(cli, ctx, resp.ID)
 
 	case err := <-errCh:
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error waiting for container completion:", err)
-			os.Exit(1)
+			return fmt.Errorf("error waiting for container completion: %v", err)
 		}
 
 	case <-statusCh:
 		// fmt.Printf("The container has completed its work with the status %d\n", status.StatusCode)
-		cleanUpContainer(cli, ctx, resp.ID)
+		return cleanUpContainer(cli, ctx, resp.ID)
 	}
+
+	return nil
 }
 
-func getCurrentDir() string {
+func getCurrentDir() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to retrieve the current directory:", err)
-		os.Exit(1)
+		return "", fmt.Errorf("failed to retrieve the current directory: %v", err)
 	}
-	return dir
+	return dir, nil
 }
 
-func cleanUpContainer(cli *client.Client, ctx context.Context, containerID string) {
+func cleanUpContainer(cli *client.Client, ctx context.Context, containerID string) error {
 	if err := cli.ContainerStop(ctx, containerID, container.StopOptions{}); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to stop the container: %v\n", err)
+		return fmt.Errorf("failed to stop the container: %v", err)
 	}
 	if err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{Force: true}); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to delete the container: %v\n", err)
+		return fmt.Errorf("failed to delete the container: %v", err)
 	}
+	return nil
 }
 
 // createTempDir creates a temporary empty directory
-func createTempDir() string {
+func createTempDir() (string, error) {
 	tempDir, err := os.MkdirTemp("", "empty")
 	if err != nil {
-		fmt.Println("Error creating temporary directory:", err)
-		os.Exit(1)
+		return "", fmt.Errorf("error creating temporary directory: %v", err)
 	}
-	return tempDir
+	return tempDir, nil
 }
 
-func generateMounts(ignores []string) []mount.Mount {
+func generateMounts(ignores []string) ([]mount.Mount, error) {
+	cwd, err := getCurrentDir()
+
+	if err != nil {
+		return nil, err
+	}
+
 	mounts := []mount.Mount{
 		{
 			Type:   mount.TypeBind,
-			Source: getCurrentDir(),
+			Source: cwd,
 			Target: "/app",
 		},
 	}
@@ -153,26 +159,26 @@ func generateMounts(ignores []string) []mount.Mount {
 		// Convert the path to an absolute path
 		absPath, err := filepath.Abs(ignore)
 		if err != nil {
-			fmt.Println("Error converting path to absolute:", err)
-			os.Exit(1)
+			return nil, fmt.Errorf("error converting path to absolute: %v", err)
 		}
 
 		// Check if the path exists
 		fileInfo, err := os.Stat(absPath)
 		if os.IsNotExist(err) {
-			fmt.Printf("Path does not exist: %s\n", absPath)
-			continue
+			return nil, fmt.Errorf("path does not exist: %s", absPath)
 		}
 
 		if err != nil {
-			fmt.Println("Error stating path:", err)
-			os.Exit(1)
+			return nil, fmt.Errorf("error stating path: %v", err)
 		}
 
 		var source string
 		if fileInfo.IsDir() {
 			// Create a temporary empty directory
-			source = createTempDir()
+			source, err = createTempDir()
+			if err != nil {
+				return nil, err
+			}
 		} else {
 			// Use /dev/null for files
 			source = "/dev/null"
@@ -187,5 +193,5 @@ func generateMounts(ignores []string) []mount.Mount {
 		mounts = append(mounts, mount)
 	}
 
-	return mounts
+	return mounts, nil
 }

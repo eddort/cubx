@@ -76,7 +76,5 @@ func (s *DockerCommand) GetDockerMeta() (string, []string, *config.Settings) {
 
 func (s *DockerCommand) Execute() error {
 	docImage, command, settings := s.GetDockerMeta()
-	docker.RunImageAndCommand(docImage, command, s.Flags, settings)
-	// TODO: refactor RunImageAndCommand
-	return nil
+	return docker.RunImageAndCommand(docImage, command, s.Flags, settings)
 }
