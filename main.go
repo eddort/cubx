@@ -6,7 +6,6 @@ import (
 	"cubx/internal/config"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -15,7 +14,8 @@ func main() {
 	configuration, _, err := config.LoadConfig(true)
 
 	if err != nil {
-		log.Fatalf("Failed to load config: %v\n", err)
+		fmt.Println("An unexpected error occurred:", err)
+		os.Exit(1)
 	}
 
 	commandArgs, flags := cli.Parse(*configuration)
@@ -27,6 +27,7 @@ func main() {
 			os.Exit(0)
 		} else {
 			fmt.Println("An unexpected error occurred:", err)
+			os.Exit(1)
 		}
 	}
 }
