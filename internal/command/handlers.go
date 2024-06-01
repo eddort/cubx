@@ -47,7 +47,7 @@ type DockerCommand struct {
 	CommandArgs   []string
 }
 
-func (s *DockerCommand) GetDockerMeta() (string, []string, *config.Settings) {
+func (s *DockerCommand) GetDockerMeta() (string, []string, *config.Settings, error) {
 	baseCommand := s.CommandArgs[0]
 	additionalArgs := s.CommandArgs[1:]
 
@@ -56,25 +56,40 @@ func (s *DockerCommand) GetDockerMeta() (string, []string, *config.Settings) {
 	for _, programConfig := range s.Configuration.Programs {
 		if programConfig.Name == commandName {
 			// merge setting with flags
-			image, tag, args := HandleProgram(dockerTag, commandName, additionalArgs, programConfig)
+			image, tag, args, err := HandleProgram(dockerTag, commandName, additionalArgs, programConfig)
+			if err != nil {
+				return "", nil, nil, fmt.Errorf("error handling program: %w", err)
+			}
 
-			settings := resolveProgramSettings(&s.Configuration.Settings, &programConfig.Settings, &programConfig.Hooks, additionalArgs)
-			settingsWithFlags := mergeFlagsWithSettings(settings, s.Flags)
+			settings, err := resolveProgramSettings(&s.Configuration.Settings, &programConfig.Settings, &programConfig.Hooks, additionalArgs)
+			if err != nil {
+				return "", nil, nil, fmt.Errorf("error resolving program settings: %w", err)
+			}
+			settingsWithFlags, err := mergeFlagsWithSettings(settings, s.Flags)
+			if err != nil {
+				return "", nil, nil, fmt.Errorf("error merging flags with settings: %w", err)
+			}
 
 			if s.Flags.IsSelectMode {
 				// TODO: add loader
-				tags, _ := registry.FetchTags(image)
+				tags, err := registry.FetchTags(image)
+				if err != nil {
+					return "", nil, nil, fmt.Errorf("error fetching tags: %w", err)
+				}
 				tag = tui.RunInteractivePrompt(tags, "latest")
 			}
 
-			return image + ":" + tag, args, settingsWithFlags
+			return image + ":" + tag, args, settingsWithFlags, nil
 		}
 	}
 
-	return "ubuntu:" + dockerTag, s.CommandArgs, &s.Configuration.Settings
+	return "ubuntu:" + dockerTag, s.CommandArgs, &s.Configuration.Settings, nil
 }
 
 func (s *DockerCommand) Execute() error {
-	docImage, command, settings := s.GetDockerMeta()
+	docImage, command, settings, err := s.GetDockerMeta()
+	if err != nil {
+		return err
+	}
 	return docker.RunImageAndCommand(docImage, command, s.Flags, settings)
 }

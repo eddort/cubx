@@ -25,7 +25,6 @@ func imageExists(ctx context.Context, cli *client.Client, imageName string) (boo
 }
 
 func pullImage(ctx context.Context, cli *client.Client, dockerImage string) error {
-
 	found, err := imageExists(ctx, cli, dockerImage)
 	if err != nil {
 		return fmt.Errorf("error checking image existence: %v", err)
