@@ -12,18 +12,26 @@ type Command interface {
 }
 
 func Execute(commandArgs []string, flags config.CLI, configuration *config.ProgramConfig) error {
-	var command Command
+	var commands []Command
+
 	if flags.ShowConfig != "" {
-		command = &ShowConfigCommand{Flags: flags, Configuration: configuration}
+		commands = append(commands, &ShowConfigCommand{Flags: flags, Configuration: configuration})
 	} else if flags.Session {
-		command = &SessionCommand{Flags: flags, Configuration: configuration}
+		commands = append(commands, &SessionCommand{Flags: flags, Configuration: configuration})
 	} else if len(commandArgs) > 0 {
-		command = &DockerRunCommand{Flags: flags, Configuration: configuration, CommandArgs: commandArgs}
+		commands = append(commands, &DockerBuildCommand{Flags: flags, Configuration: configuration, CommandArgs: commandArgs})
+		commands = append(commands, &DockerRunCommand{Flags: flags, Configuration: configuration, CommandArgs: commandArgs})
 	}
 
-	if command == nil {
+	if len(commands) == 0 {
 		return ErrCommandNotFound
 	}
 
-	return command.Execute()
+	for _, command := range commands {
+		if err := command.Execute(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
