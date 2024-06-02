@@ -31,6 +31,24 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 
 	// hostContainerId := EnsureHostContainer(ctx, cli)
 
+	cwd, err := getCurrentDir()
+	if err != nil {
+		return err
+	}
+	ogCWD := ""
+	containerENVS := []string{}
+	hostCwd := os.Getenv("CUBX_HOST_CWD")
+	// isPrivileged := false
+
+	if hostCwd == "" {
+		ogCWD = cwd
+	} else {
+		// isPrivileged = true
+		ogCWD = hostCwd
+
+	}
+	containerENVS = append(containerENVS, fmt.Sprintf("CUBX_HOST_CWD=%s", ogCWD))
+	// fmt.Println("isPrivileged", isPrivileged)
 	dockerContainerConfig := &container.Config{
 		Image:        dockerImage,
 		Cmd:          command,
@@ -41,11 +59,12 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 		WorkingDir:   "/app",
 		OpenStdin:    true, // Ensure the stdin is open
 		StdinOnce:    false,
+		Env:          containerENVS,
 		// ExposedPorts: exposedPorts,
 		// Labels: ["cubx-container"]
 	}
 
-	mounts, err := generateMounts(settings.IgnorePaths)
+	mounts, err := generateMounts(ogCWD, settings.IgnorePaths)
 	if err != nil {
 		return fmt.Errorf("generate mounts error: %w", err)
 	}
@@ -56,6 +75,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 		NetworkMode: "host",
 		// PortBindings: portMappings,
 		Mounts: mounts,
+		// Privileged: isPrivileged,
 	}
 
 	if settings.Net != "" {
@@ -140,19 +160,19 @@ func createTempDir() (string, error) {
 	return tempDir, nil
 }
 
-func generateMounts(ignores []string) ([]mount.Mount, error) {
-	cwd, err := getCurrentDir()
-
-	if err != nil {
-		return nil, err
-	}
-
+func generateMounts(cwd string, ignores []string) ([]mount.Mount, error) {
 	mounts := []mount.Mount{
 		{
 			Type:   mount.TypeBind,
 			Source: cwd,
 			Target: "/app",
 		},
+		// TODO: add volume to config and flags
+		// {
+		// 	Type:   mount.TypeBind,
+		// 	Source: "/var/run/docker.sock",
+		// 	Target: "/var/run/docker.sock",
+		// },
 	}
 
 	for _, ignore := range ignores {

@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"cubx/internal/streams"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -62,13 +63,18 @@ func tarDirectory(dir string) (*bytes.Buffer, error) {
 		if err != nil {
 			return err
 		}
-
+		fmt.Println(file)
 		hdr, err := tar.FileInfoHeader(fi, file)
 		if err != nil {
 			return err
 		}
 
-		hdr.Name = file
+		// hdr.Name = file
+		relPath, err := filepath.Rel(dir, file)
+		if err != nil {
+			return err
+		}
+		hdr.Name = filepath.ToSlash(relPath)
 		if err := tw.WriteHeader(hdr); err != nil {
 			return err
 		}
@@ -92,9 +98,25 @@ func tarDirectory(dir string) (*bytes.Buffer, error) {
 
 	return buf, nil
 }
+func PrintTarContents(buf *bytes.Buffer) error {
+	tr := tar.NewReader(bytes.NewReader(buf.Bytes()))
+	fmt.Println("Contents of tar:")
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		fmt.Println(hdr.Name)
+	}
+	return nil
+}
 
 // Basic function to build a Docker image with hash validation
 func BuildImage(dockerfilePath, imageTag, contextDir string) error {
+	fmt.Println("context build: ", contextDir)
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -120,11 +142,12 @@ func BuildImage(dockerfilePath, imageTag, contextDir string) error {
 	if err != nil {
 		return err
 	}
-
+	// printTarContents(tarBuf)
 	buildOptions := types.ImageBuildOptions{
-		Dockerfile: dockerfilePath,
+		Dockerfile: filepath.Base(dockerfilePath),
 		Tags:       []string{imageTag},
 		Remove:     true,
+		// NoCache:    true,
 	}
 
 	buildResponse, err := cli.ImageBuild(ctx, tarBuf, buildOptions)
