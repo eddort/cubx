@@ -295,7 +295,7 @@ This command makes a GET request to `https://example.com` and displays the respo
 Use the `--session` flag to open a session where all cubx commands become global without having to write cubx before each command.
 
 > [!NOTE]
-> The cubx flags and the ability to specify the application version with a colon are not available in the session.
+> The `cubx` flags and the ability to specify the application version with a colon are not available in the session.
 
 ![cubx session](./docs/session.gif)
 
