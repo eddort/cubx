@@ -52,6 +52,9 @@ func getHelpMessage(configuration config.ProgramConfig) string {
 	}
 	sort.Strings(sortedCategories)
 	for _, category := range sortedCategories {
+		if category == "Hidden" {
+			continue
+		}
 		commands := categories[category]
 		sort.Slice(commands, func(i, j int) bool {
 			return commands[i].Name < commands[j].Name
