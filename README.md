@@ -62,7 +62,7 @@ cubx -h
 
 Output:
 
-![cubx help](./docs/help.gif)
+![cubx help](./docs/help.gif?v=2)
 
 ## Basic Usage
 
