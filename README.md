@@ -62,15 +62,17 @@ cubx -h
 
 Output:
 
-![cubx help](./docs/help.png)
+![cubx help](./docs/help.gif)
 
 ## Basic Usage
 
 Cubx's main goal is to provide the easiest possible way to run applications inside containers, making it look like they are running locally.
 
 ```sh
-cubx node --eval 'console.log(`node version: ${process.version}`)'
+cubx node -e 'console.log(`node version:`, process.version)'
 ```
+
+![cubx node version](./docs/node-version.gif)
 
 This is analogous to running the command without Cubx:
 
@@ -101,6 +103,8 @@ By using Cubx, you run programs in an isolated environment with several advantag
 cubx python -c 'import sys; print(f"Python version: {sys.version}")'
 ```
 
+![cubx python version](./docs/python-version.gif)
+
 Output:
 
 ```sh
@@ -112,6 +116,8 @@ Python version: 3.12.3 (main, May 14 2024, 05:40:55) [GCC 12.2.0]
 ```sh
 cubx ruby -e 'puts "Ruby version: #{RUBY_VERSION}"'
 ```
+
+![cubx ruby version](./docs/ruby-version.gif)
 
 Output:
 
@@ -125,7 +131,7 @@ Ruby version: 3.3.1
 Cubx provides a user-friendly interface for working with different versions of applications. For example, Node.js has nvm, but not all programs have an equivalent. Cubx allows you to specify the version easily by adding `:version` to your command.
 
 ```sh
-cubx node:14 --eval 'console.log(`node version: ${process.version}`)'
+cubx node:14 -e 'console.log(`node version:`, process.version)'
 ```
 
 Output:
@@ -141,16 +147,9 @@ This works for any program that has a Docker registry.
 If you don't know the exact versions available and don't want to search the internet, you can use the `--select` flag to activate the interactive version selection interface.
 
 ```sh
-cubx --select node --eval 'console.log(`node version: ${process.version}`)'
+cubx python -c 'import sys; print("Python version:", sys.version)'
 ```
-
-Select:
-
-![cubx select](./docs/select.png)
-
-Result:
-
-![cubx select result](./docs/select-result.png)
+![cubx select version](./docs/cubx-select.gif)
 
 ### File Exclusion
 
