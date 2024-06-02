@@ -167,6 +167,7 @@ func generateMounts(cwd string, ignores []string) ([]mount.Mount, error) {
 			Source: cwd,
 			Target: "/app",
 		},
+		// TODO: add volume to config and flags
 		// {
 		// 	Type:   mount.TypeBind,
 		// 	Source: "/var/run/docker.sock",
