@@ -290,6 +290,15 @@ cubx httpie GET https://example.com
 
 This command makes a GET request to `https://example.com` and displays the response in a user-friendly format.
 
+### Session
+
+Use the `--session` flag to open a session where all cubx commands become global without having to write cubx before each command.
+
+> [!NOTE]
+> The cubx flags and the ability to specify the application version with a colon are not available in the session.
+
+![cubx session](./docs/session.gif)
+
 ### More Examples
 
 For more examples, you can visit the [Cubx Examples Directory](https://github.com/eddort/cubx/tree/main/examples).
