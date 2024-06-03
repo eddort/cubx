@@ -1,6 +1,6 @@
 # Cubx
 
-<img src="./docs/cubx.png" height="122px" align="right" width="122px">
+<img src="./docs/cubx.png" height="182px" align="right" width="182px">
 
 **Cubx** is a versatile tool that simplifies running console programs inside Docker containers. It is suitable for anyone who wants to use applications without the need to install them on their device, providing ease and convenience in operation.
 - **Simple Command Line Interface**: Run applications with simple commands as if they were installed locally.
