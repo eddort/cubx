@@ -134,6 +134,8 @@ Cubx provides a user-friendly interface for working with different versions of a
 cubx node:14 -e 'console.log(`node version:`, process.version)'
 ```
 
+![cubx node14 version](./docs/node14-version.gif)
+
 Output:
 
 ```sh
