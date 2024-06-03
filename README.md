@@ -188,11 +188,7 @@ Run the script:
 cubx node test-env.js 
 ```
 
-Output:
-
-```sh
-SOME_PRIVATE_KEY=123
-```
+![cubx test env avail](./docs/test-env-avail.gif)
 
 Our script reads the configuration without problems and outputs everything to the console.
 
@@ -202,10 +198,7 @@ Now, exclude the file and try again:
 cubx --ignore-path .env node test-env.js 
 ```
 
-Output:
-
-```sh
-```
+![cubx test env avail](./docs/test-env-no.gif)
 
 The output is empty because the file is excluded in the container when the program is called.
 
