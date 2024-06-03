@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/docker/docker/api/types/container"
@@ -64,7 +65,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 		// Labels: ["cubx-container"]
 	}
 
-	mounts, err := generateMounts(ogCWD, settings.IgnorePaths)
+	mounts, err := generateMounts(ogCWD, settings.IgnorePaths, settings.Mounts)
 	if err != nil {
 		return fmt.Errorf("generate mounts error: %w", err)
 	}
@@ -160,7 +161,23 @@ func createTempDir() (string, error) {
 	return tempDir, nil
 }
 
-func generateMounts(cwd string, ignores []string) ([]mount.Mount, error) {
+func parseMountsString(input string) mount.Mount {
+	parts := strings.Split(input, ":")
+	if len(parts) == 1 {
+		return mount.Mount{
+			Type:   mount.TypeBind,
+			Source: parts[0],
+			Target: parts[0],
+		}
+	}
+	return mount.Mount{
+		Type:   mount.TypeBind,
+		Source: parts[0],
+		Target: parts[1],
+	}
+}
+
+func generateMounts(cwd string, ignores []string, user_mounts []string) ([]mount.Mount, error) {
 	mounts := []mount.Mount{
 		{
 			Type:   mount.TypeBind,
@@ -173,6 +190,11 @@ func generateMounts(cwd string, ignores []string) ([]mount.Mount, error) {
 		// 	Source: "/var/run/docker.sock",
 		// 	Target: "/var/run/docker.sock",
 		// },
+	}
+
+	for _, s := range user_mounts {
+		mount := parseMountsString(s)
+		mounts = append(mounts, mount)
 	}
 
 	for _, ignore := range ignores {
