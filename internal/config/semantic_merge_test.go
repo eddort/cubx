@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"sort"
 	"testing"
-
-	"github.com/go-playground/validator/v10"
 )
 
 func sortStrings(s []string) []string {
@@ -40,7 +38,7 @@ func TestSemanticMerge(t *testing.T) {
 	// Perform the semantic merge
 	semanticMerge(config)
 
-	validate := validator.New()
+	validate := getValidator()
 	err := validate.Struct(config)
 	if err != nil {
 		t.Fatalf("validation failed: %v", err)

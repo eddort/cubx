@@ -30,6 +30,8 @@ type Program struct {
 type Settings struct {
 	Net         string   `yaml:"net" validate:"oneof='' none host bridge"`
 	IgnorePaths []string `yaml:"ignore_paths"`
+	Mounts      []string `yaml:"mounts"`
+	Platform    string   `yaml:"platform" validate:"platform"`
 }
 
 type ProgramConfig struct {

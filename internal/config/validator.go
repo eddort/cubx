@@ -1,10 +1,25 @@
 package config
 
 import (
+	"cubx/internal/platform"
 	"fmt"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
+
+func validatePlatform(fl validator.FieldLevel) bool {
+	value := fl.Field().String()
+	// allow empty value
+	if value == "" {
+		return true
+	}
+	parts := strings.Split(value, "/")
+	if len(parts) != 2 {
+		return false
+	}
+	return platform.IsValidOsArch(parts[0], parts[1])
+}
 
 // setDefaults sets default values for fields that are not set.
 func setDefaults(config *ProgramConfig) {
@@ -20,7 +35,7 @@ func setDefaults(config *ProgramConfig) {
 
 func getValidator() *validator.Validate {
 	validate := validator.New()
-
+	validate.RegisterValidation("platform", validatePlatform)
 	return validate
 }
 

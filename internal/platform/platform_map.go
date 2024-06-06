@@ -15,7 +15,7 @@ func NewPlatformMap() *PlatformMap {
 }
 
 func (pm *PlatformMap) Add(os, arch string) {
-	if isValidOsArch(os, arch) {
+	if IsValidOsArch(os, arch) {
 		key := os + "/" + arch
 		pm.platforms[key] = OsArch{Os: os, Arch: arch}
 	}
