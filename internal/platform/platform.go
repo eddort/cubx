@@ -46,7 +46,7 @@ var validOsArches = map[OsArch]bool{
 	{Os: "windows", Arch: "amd64"}:   true,
 }
 
-func isValidOsArch(Os string, Arch string) bool {
+func IsValidOsArch(Os string, Arch string) bool {
 	// check for existence of this combo
 	_, ok := validOsArches[OsArch{Os, Arch}]
 	return ok

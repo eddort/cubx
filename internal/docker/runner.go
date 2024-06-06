@@ -21,7 +21,7 @@ func RunImageAndCommand(dockerImage string, command []string, config config.CLI,
 
 	ctx := context.Background()
 
-	err = pullImage(ctx, cli, dockerImage)
+	err = pullImage(ctx, cli, dockerImage, settings)
 
 	if err != nil {
 		return fmt.Errorf("error pulling a Docker container: %w", err)

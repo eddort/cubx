@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"cubx/internal/config"
 	"cubx/internal/platform"
 	"cubx/internal/streams"
 	"fmt"
@@ -24,7 +25,7 @@ func imageExists(ctx context.Context, cli *client.Client, imageName string) (boo
 	return len(images) > 0, nil
 }
 
-func pullImage(ctx context.Context, cli *client.Client, dockerImage string) error {
+func pullImage(ctx context.Context, cli *client.Client, dockerImage string, settings *config.Settings) error {
 	found, err := imageExists(ctx, cli, dockerImage)
 	if err != nil {
 		return fmt.Errorf("error checking image existence: %w", err)
@@ -42,7 +43,7 @@ func pullImage(ctx context.Context, cli *client.Client, dockerImage string) erro
 
 	fmt.Printf("Download image with platform: %s\n", platformKey)
 
-	pullRes, err := cli.ImagePull(ctx, dockerImage, image.PullOptions{Platform: platformKey})
+	pullRes, err := cli.ImagePull(ctx, dockerImage, image.PullOptions{Platform: settings.Platform})
 
 	if err != nil {
 		return fmt.Errorf("error pulling a Docker container: %w", err)
