@@ -1,11 +1,11 @@
 package main
 
 import (
-	"cubx/internal/cli"
-	"cubx/internal/command"
-	"cubx/internal/config"
-	"cubx/internal/tui"
 	"errors"
+	"github.com/eddort/cubx/internal/cli"
+	"github.com/eddort/cubx/internal/command"
+	"github.com/eddort/cubx/internal/config"
+	"github.com/eddort/cubx/internal/tui"
 	"os"
 )
 
