@@ -1,11 +1,11 @@
 package command
 
 import (
-	"cubx/internal/config"
-	"cubx/internal/docker"
-	"cubx/internal/registry"
-	"cubx/internal/tui"
 	"fmt"
+	"github.com/eddort/cubx/internal/config"
+	"github.com/eddort/cubx/internal/docker"
+	"github.com/eddort/cubx/internal/registry"
+	"github.com/eddort/cubx/internal/tui"
 	"path/filepath"
 	"strings"
 

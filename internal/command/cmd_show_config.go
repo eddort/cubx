@@ -1,9 +1,9 @@
 package command
 
 import (
-	"cubx/internal/config"
-	"cubx/internal/tui"
 	"fmt"
+	"github.com/eddort/cubx/internal/config"
+	"github.com/eddort/cubx/internal/tui"
 )
 
 type ShowConfigCommand struct {

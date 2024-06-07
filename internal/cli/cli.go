@@ -1,9 +1,10 @@
 package cli
 
 import (
-	"cubx/internal/config"
 	"flag"
 	"fmt"
+
+	"github.com/eddort/cubx/internal/config"
 )
 
 func ShowHelpMessage(configuration config.ProgramConfig) {

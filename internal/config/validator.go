@@ -1,8 +1,8 @@
 package config
 
 import (
-	"cubx/internal/platform"
 	"fmt"
+	"github.com/eddort/cubx/internal/platform"
 	"strings"
 
 	"github.com/go-playground/validator/v10"

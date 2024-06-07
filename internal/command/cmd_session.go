@@ -1,8 +1,8 @@
 package command
 
 import (
-	"cubx/internal/config"
-	"cubx/internal/session"
+	"github.com/eddort/cubx/internal/config"
+	"github.com/eddort/cubx/internal/session"
 )
 
 type SessionCommand struct {
