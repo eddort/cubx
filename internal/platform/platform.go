@@ -1,8 +1,8 @@
 package platform
 
 import (
-	"cubx/internal/registry"
 	"fmt"
+	"github.com/eddort/cubx/internal/registry"
 )
 
 type OsArch struct {

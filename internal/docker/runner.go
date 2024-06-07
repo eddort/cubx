@@ -2,12 +2,13 @@ package docker
 
 import (
 	"context"
-	"cubx/internal/config"
 	"fmt"
 	"io"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/eddort/cubx/internal/config"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"

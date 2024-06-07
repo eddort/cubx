@@ -1,4 +1,4 @@
-module cubx
+module github.com/eddort/cubx
 
 go 1.21
 

@@ -2,10 +2,10 @@ package docker
 
 import (
 	"context"
-	"cubx/internal/config"
-	"cubx/internal/platform"
-	"cubx/internal/streams"
 	"fmt"
+	"github.com/eddort/cubx/internal/config"
+	"github.com/eddort/cubx/internal/platform"
+	"github.com/eddort/cubx/internal/streams"
 
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"

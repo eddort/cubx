@@ -1,8 +1,8 @@
 package command
 
 import (
-	"cubx/internal/config"
 	"errors"
+	"github.com/eddort/cubx/internal/config"
 )
 
 var ErrCommandNotFound = errors.New("command is nil")
