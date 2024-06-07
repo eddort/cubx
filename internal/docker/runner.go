@@ -148,6 +148,10 @@ func getCWD() (string, error) {
 
 func getENV(currentCWD string) []string {
 	containerENVS := []string{}
+	termEnv := os.Getenv("TERM")
+	if termEnv != "" {
+		containerENVS = append(containerENVS, fmt.Sprintf("TERM=%s", termEnv))
+	}
 
 	containerENVS = append(containerENVS, fmt.Sprintf("CUBX_HOST_CWD=%s", currentCWD))
 	// TODO: pass env from .cubx/config
