@@ -5,7 +5,7 @@
 
 version: 2
 
-project_name: supply-chain-example
+project_name: cubx
 
 # setups builds for linux and darwin on amd64 and arm64
 # https://goreleaser.com/customization/build
@@ -27,6 +27,23 @@ builds:
       # use commit date instead of current date as main.date
       # only needed if you actually use those things in your main package, otherwise can be ignored.
       - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+
+archives:
+  - format_overrides:
+      - goos: windows
+        format: zip
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    wrap_in_directory: true
+    files:
+      - README*
+      - LICENSE*
+      - docs/*
 
 # proxies from the go mod proxy before building
 # https://goreleaser.com/customization/gomod
@@ -66,4 +83,3 @@ signs:
       - "--yes" # needed on cosign 2.0.0+
     artifacts: checksum
     output: true
-
